@@ -1,10 +1,10 @@
 # physkit-fortran
 
-Computational physics toolkit written in Fortran.
+A modular computational physics toolkit written in modern Fortran.
 
 ## Description
 
-physkit is a personal and academic project aimed at building a reusable computational physics toolkit throughout my training as a physicist.
+physkit is a personal and academic project aimed at building a reusable computational physics toolkit throughout my academic formation as a physicist.
 
 This repository is intended to grow progressively as new numerical methods, physical models, and computational techniques are learned and implemented.
 
