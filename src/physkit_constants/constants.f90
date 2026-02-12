@@ -44,4 +44,39 @@ module physkit_constants
   ! Avogadro number (mol^-1)
   real(dp), parameter :: avogadro_number = 6.02214076e23_dp
 
+  ! Vacuum permittivity (F/m)
+  real(dp), parameter :: vacuum_permittivity = 8.8541878188e-12_dp
+
+  ! Vacuum permeability (N/A^2)
+  real(dp), parameter :: vacuum_permeability = 1.25663706127e-6_dp
+
+  ! Fine-structure constant (dimensionless)
+  real(dp), parameter :: fine_structure_constant = 7.2973525643e-3_dp
+
+  ! Electron mass (kg)
+  real(dp), parameter :: electron_mass = 9.1093837139e-31_dp
+
+  ! Proton mass (kg)
+  real(dp), parameter :: proton_mass = 1.67262192595e-27_dp
+
+  ! Neutron mass (kg)
+  real(dp), parameter :: neutron_mass = 1.67492750056e-27_dp
+
+  ! Atomic unit of mass (kg)
+  real(dp), parameter :: atomic_unit_mass = 9.1093837139e-31_dp
+
+  ! Electron volt (J)
+  real(dp), parameter :: electron_volt = 1.602176634e-19_dp
+
+  ! Molar gas constant (J mol^-1 K^-1)
+  real(dp), parameter :: gas_constant = 8.314462618_dp
+
+  ! Stefan-Boltzmann constant (W m^-2 K^-4)
+  real(dp), parameter :: stefan_boltzmann = 5.670374419e-8_dp
+
+  ! Rydberg constant (m^-1)
+  real(dp), parameter :: rydberg_constant = 10973731.568157_dp
+
+  ! Standard acceleration of gravity (m/s^2)
+  real(dp), parameter :: standard_gravity = 9.80665_dp
 end module physkit_constants
