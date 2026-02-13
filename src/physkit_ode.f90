@@ -13,17 +13,17 @@ module physkit_ode
 contains
 
     !=================================================
-    ! Euler Method
+    ! Euler Method for ODE Integration
     !=================================================
-    ! dt: time step
-    ! yinitial: initial value of y
-    ! t0: initial time
+    ! dx: step size
+    ! yinitial: initial value of y at x0
+    ! x0: initial value of x
     ! N: number of steps
-    ! ynext: output variable for the next value of y
-    ! yfunc: function that computes the derivative dy/dt = f(x, y)
+    ! ynext: output value of y after N steps
+    ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine euler(dt, yinitial, t0, N, yfunc, ynext)
-        real, intent(in)  :: dt, yinitial, t0
+    subroutine euler(dx, yinitial, x0, N, ynext, yfunc)
+        real, intent(in)  :: dx, yinitial, x0
         integer, intent(in) :: N
         real, intent(out) :: ynext
         procedure(f) :: yfunc
@@ -32,11 +32,11 @@ contains
         integer :: j
 
         y = yinitial
-        t = t0
+        x = x0
 
         do j = 1, N
-            y = y + dt * yfunc(x, y)
-            x = x + dt
+            y = y + dx * yfunc(x, y)
+            x = x + dx
         end do
 
         ynext = y
