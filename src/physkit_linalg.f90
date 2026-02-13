@@ -2,7 +2,7 @@ module physkit_linalg
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_dot, pk_norm, pk_cross, pk_normalize
+    public :: pk_dot, pk_norm, pk_cross, pk_normalize, pk_prodmatvec, pk_prodmatmat, pk_zeromatrix, pk_identitymatrix
 
 contains
 
@@ -93,5 +93,103 @@ contains
         end do
 
     end function pk_normalize
+
+    !=================================================
+    ! Matrix-vector multiplication
+    !=================================================
+    ! A: matrix (2D array)
+    ! x: vector (array)
+    ! y: output vector (array)
+    !=================================================
+    subroutine pk_prodmatvec(A, x, y)
+        real(dp), intent(in) :: A(:, :), x(:)
+        real(dp), intent(out) :: y(:)
+        integer :: i, j, N, M
+
+        N = size(x)
+        M = size(A, 1)
+
+        if (size(A, 2) /= N) stop "Error: incompatible matrix and vector dimensions"
+
+        do i = 1, M
+            y(i) = 0.0_dp
+            do j = 1, N
+                y(i) = y(i) + A(i, j) * x(j)
+            end do
+        end do
+
+    end subroutine pk_prodmatvec
+
+    !=================================================
+    ! Matrix-matrix multiplication
+    !=================================================
+    ! A: first matrix (2D array)
+    ! B: second matrix (2D array)
+    ! C: output matrix (2D array)
+    !=================================================
+    subroutine pk_prodmatmat(A, B, C)
+        real(dp), intent(in) :: A(:, :), B(:, :)
+        real(dp), intent(out) :: C(:, :)
+        integer :: i, j, k, N, M, P
+
+        N = size(A, 1)
+        M = size(A, 2)
+        P = size(B, 2)
+
+        if (size(B, 1) /= M) stop "Error: incompatible matrix dimensions"
+
+        do i = 1, N
+            do j = 1, P
+                C(i, j) = 0.0_dp
+                do k = 1, M
+                    C(i, j) = C(i, j) + A(i, k) * B(k, j)
+                end do
+            end do
+        end do
+
+    end subroutine pk_prodmatmat
+
+    !=================================================
+    ! Zero Matrix
+    !=================================================
+    ! N: number of rows
+    ! M: number of columns
+    ! Z: output zero matrix (2D array)
+    !=================================================
+    subroutine pk_zeromatrix(N, M, Z)
+        integer, intent(in) :: N, M
+        real(dp), intent(out) :: Z(:, :)
+        integer :: i, j
+
+        do i = 1, N
+            do j = 1, M
+                Z(i, j) = 0.0_dp
+            end do
+        end do
+
+    end subroutine pk_zeromatrix
+
+    !=================================================
+    ! Identity Matrix
+    !=================================================
+    ! N: size of the identity matrix (N x N)
+    ! I: output identity matrix (2D array)
+    !=================================================
+    subroutine pk_identitymatrix(N, I)
+        integer, intent(in) :: N
+        real(dp), intent(out) :: I(:, :)
+        integer :: i, j
+
+        do i = 1, N
+            do j = 1, N
+                if (i == j) then
+                    I(i, j) = 1.0_dp
+                else
+                    I(i, j) = 0.0_dp
+                end if
+            end do
+        end do
+
+    end subroutine pk_identitymatrix
 
 end module physkit_linalg

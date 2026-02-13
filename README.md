@@ -20,7 +20,7 @@ This repository is intended to grow progressively as new numerical methods, phys
 The toolkit includes modules for:
 
 - Physical constants
-- Lineal algebra: Dot product, norm of a vector, cross product and vector normalization
+- Lineal algebra: Dot product, norm of a vector, cross product, vector normalization, matrix-vector multiplication, matrix-matrix multiplication, zero matrix and identity matrix
 - ODE methods: Euler, rk2, rk4 and velocity Verlet
 
 ## Roadmap
