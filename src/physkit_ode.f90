@@ -16,21 +16,22 @@ contains
     ! Euler Method for ODE Integration
     !=================================================
     ! dx: step size
-    ! yinitial: initial value of y at x0
-    ! x0: initial value of x
-    ! N: number of steps
-    ! ynext: output value of y after N steps
+    ! x0: initial x value
+    ! x1: final x value
+    ! yinitial: initial y value at x0
+    ! ynext: output y value at x1
     ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine euler(dx, yinitial, x0, N, ynext, yfunc)
-        real, intent(in)  :: dx, yinitial, x0
-        integer, intent(in) :: N
+    subroutine euler(dx, x0, x1, yinitial, ynext, yfunc)
+        real, intent(in)  :: dx, yinitial, x0, x1
         real, intent(out) :: ynext
         procedure(f) :: yfunc
 
         real :: y, x
-        integer :: j
+        integer :: j, N
 
+        if (dx == 0.0) stop "Error: dx cannot be zero"
+        N = nint((x1 - x0) / dx)
         y = yinitial
         x = x0
 

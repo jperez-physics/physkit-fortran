@@ -6,7 +6,7 @@ program test
 
     y = 0.0
 
-    call euler(0.001, 1.0, 0.0, 1000, y, f)
+    call euler(0.001, 0.0, 10.0, 1.0, y, f)
 
     print *, y
 
