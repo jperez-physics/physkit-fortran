@@ -20,17 +20,18 @@ This repository is intended to grow progressively as new numerical methods, phys
 The toolkit includes modules for:
 
 - Physical constants
-- ODE Methods: euler, rk2, rk4, velocity Verlet
-- Lineal Algebra: Dot product
+- Lineal algebra: Dot product, norm of a vector, cross product and vector normalization
+- ODE methods: Euler, rk2, rk4 and velocity Verlet
 
 ## Roadmap
 
 The toolkit will include modules for:
 
-- linear algebra
-- numerical calculus
-- ordinary differential equations
-- partial differential equations
+- Linear algebra
+- ODE and PDE
+- Numerical calculus
+- Special functions
+- Fourier analysis
 
 (This may change)
 

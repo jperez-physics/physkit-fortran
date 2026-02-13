@@ -12,7 +12,7 @@ program linalg_test
     a = [1.0_dp, 2.0_dp, 3.0_dp]
     b = [4.0_dp, 3.0_dp, 2.0_dp]
 
-    res = dot(a, b)
+    res = pk_dot(a, b)
 
     print *, "Dot product result:", res
 

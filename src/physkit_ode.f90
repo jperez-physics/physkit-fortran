@@ -2,7 +2,7 @@ module physkit_ode
     use physkit_constants, only: dp
     implicit none
     private
-    public :: euler, rk2, rk4, verlet
+    public :: pk_euler, pk_rk2, pk_rk4, pk_verlet
 
     interface
         function f(x, y)
@@ -24,7 +24,7 @@ contains
     ! ynext: output y value at x1
     ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine euler(dx, x0, x1, yinitial, ynext, yfunc)
+    subroutine pk_euler(dx, x0, x1, yinitial, ynext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, x0, x1
         real(dp), intent(out) :: ynext
         procedure(f) :: yfunc
@@ -43,7 +43,7 @@ contains
 
         ynext = y
 
-    end subroutine euler
+    end subroutine pk_euler
 
     !=================================================
     ! RK2 Method for ODE Integration
@@ -55,7 +55,7 @@ contains
     ! ynext: output y value at x1
     ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine rk2(dx, x0, x1, yinitial, ynext, yfunc)
+    subroutine pk_rk2(dx, x0, x1, yinitial, ynext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, x0, x1
         real(dp), intent(out) :: ynext
         procedure(f) :: yfunc
@@ -76,7 +76,7 @@ contains
 
         ynext = y
 
-    end subroutine rk2
+    end subroutine pk_rk2
 
     !=================================================
     ! RK4 Method for ODE Integration
@@ -88,14 +88,14 @@ contains
     ! ynext: output y value at x1
     ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine rk4(dx, x0, x1, yinitial, ynext, yfunc)
+    subroutine pk_rk4(dx, x0, x1, yinitial, ynext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, x0, x1
         real(dp), intent(out) :: ynext
         procedure(f) :: yfunc
 
         real(dp) :: y, x, k1, k2, k3, k4
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot ser cero"
+        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
         N = nint((x1 - x0) / dx)
         y = yinitial
         x = x0
@@ -111,7 +111,7 @@ contains
 
         ynext = y
 
-    end subroutine rk4
+    end subroutine pk_rk4
 
     !=================================================
     ! Velocity Verlet Method for 2nd-order ODE
@@ -126,7 +126,7 @@ contains
     ! yfunc: function that computes acceleration a(x, y) = d2y/dx2
     ! NOTE: Here 'yfunc(x,y)' must return la acceleration (second order)
     !=================================================
-    subroutine verlet(dx, x0, x1, yinitial, vinitial, ynext, vnext, yfunc)
+    subroutine pk_verlet(dx, x0, x1, yinitial, vinitial, ynext, vnext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, vinitial, x0, x1
         real(dp), intent(out) :: ynext, vnext
         procedure(f) :: yfunc
@@ -150,6 +150,6 @@ contains
         ynext = y
         vnext = v
 
-    end subroutine verlet
+    end subroutine pk_verlet
 
 end module physkit_ode

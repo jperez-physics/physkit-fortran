@@ -7,13 +7,13 @@ program ode_test
 
     y = 0.0_dp
 
-    call euler(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
+    call pk_euler(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
     print *, "Euler result:", y
 
-    call rk2(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
+    call pk_rk2(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
     print *, "RK2 result:", y
 
-    call rk4(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
+    call pk_rk4(0.1_dp, 0.0_dp, 10.0_dp, 1.0_dp, y, f)
     print *, "RK4 result:", y
 
 contains
