@@ -1,7 +1,7 @@
 module physkit_ode
     implicit none
     private
-    public :: euler
+    public :: euler, rk2, rk4
 
     interface
         function f(x, y)
@@ -43,5 +43,75 @@ contains
         ynext = y
 
     end subroutine euler
+
+    !=================================================
+    ! RK2 Method for ODE Integration
+    !=================================================
+    ! dx: step size
+    ! x0: initial x value
+    ! x1: final x value
+    ! yinitial: initial y value at x0
+    ! ynext: output y value at x1
+    ! yfunc: function that computes dy/dx = f(x, y)
+    !=================================================
+    subroutine rk2(dx, x0, x1, yinitial, ynext, yfunc)
+        real, intent(in)  :: dx, yinitial, x0, x1
+        real, intent(out) :: ynext
+        procedure(f) :: yfunc
+
+        real :: y, x, k1, k2
+        integer :: j, N
+
+        if (dx == 0.0) stop "Error: dx cannot ser cero"
+        N = nint((x1 - x0) / dx)
+        y = yinitial
+        x = x0
+
+        do j = 1, N
+            k1 = yfunc(x, y)
+            k2 = yfunc(x + dx/2.0, y + dx*k1/2.0)
+            y = y + dx * k2
+            x = x + dx
+        end do
+
+        ynext = y
+
+    end subroutine rk2
+
+    !=================================================
+    ! RK4 Method for ODE Integration
+    !=================================================
+    ! dx: step size
+    ! x0: initial x value
+    ! x1: final x value
+    ! yinitial: initial y value at x0
+    ! ynext: output y value at x1
+    ! yfunc: function that computes dy/dx = f(x, y)
+    !=================================================
+    subroutine rk4(dx, x0, x1, yinitial, ynext, yfunc)
+        real, intent(in)  :: dx, yinitial, x0, x1
+        real, intent(out) :: ynext
+        procedure(f) :: yfunc
+
+        real :: y, x, k1, k2, k3, k4
+        integer :: j, N
+
+        if (dx == 0.0) stop "Error: dx cannot ser cero"
+        N = nint((x1 - x0) / dx)
+        y = yinitial
+        x = x0
+
+        do j = 1, N
+            k1 = yfunc(x, y)
+            k2 = yfunc(x + dx/2.0, y + dx*k1/2.0)
+            k3 = yfunc(x + dx/2.0, y + dx*k2/2.0)
+            k4 = yfunc(x + dx,     y + dx*k3)
+            y = y + dx*(k1 + 2.0*k2 + 2.0*k3 + k4)/6.0
+            x = x + dx
+        end do
+
+        ynext = y
+
+    end subroutine rk4
 
 end module physkit_ode
