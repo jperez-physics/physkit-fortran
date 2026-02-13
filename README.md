@@ -24,6 +24,7 @@ The toolkit will include modules for:
 - numerical calculus
 - ordinary differential equations
 - partial differential equations
+
 (This may change)
 
 ## Project philosophy
