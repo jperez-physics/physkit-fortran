@@ -15,11 +15,18 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Build simulation-ready modules for future academic work
 - Transition from isolated scripts to structured scientific software
 
+## Current Features
+
+The toolkit includes modules for:
+
+- Physical constants
+- ODE Methods: euler, rk2, rk4, velocity Verlet
+- Lineal Algebra: Dot product
+
 ## Roadmap
 
 The toolkit will include modules for:
 
-- physical constants
 - linear algebra
 - numerical calculus
 - ordinary differential equations
