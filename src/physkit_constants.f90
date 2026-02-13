@@ -13,8 +13,6 @@ module physkit_constants
   real(dp), parameter :: euler = 2.71828182845904523536_dp
   real(dp), parameter :: tau = 2.0_dp * pi
   real(dp), parameter :: golden_ratio = 1.61803398874989484820_dp
-  real(dp), parameter :: sqrt2 = 1.41421356237309504880_dp
-  real(dp), parameter :: sqrt3 = 1.73205080756887729353_dp
   real(dp), parameter :: euler_mascheroni = 0.57721566490153286060_dp
   real(dp), parameter :: catalan = 0.91596559417721901505_dp
   real(dp), parameter :: apery_constant = 1.20205690315959428540_dp
