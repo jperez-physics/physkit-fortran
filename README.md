@@ -21,6 +21,7 @@ The toolkit includes modules for:
 
 - Physical constants
 - Lineal algebra: Dot product, norm of a vector, cross product, vector normalization, matrix-vector multiplication, matrix-matrix multiplication, zero matrix and identity matrix
+- Numerical calculus: Foward difference, backward difference, central difference and central second difference
 - ODE methods: Euler, rk2, rk4 and velocity Verlet
 
 ## Roadmap

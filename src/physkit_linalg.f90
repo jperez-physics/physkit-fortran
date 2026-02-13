@@ -175,17 +175,17 @@ contains
     ! N: size of the identity matrix (N x N)
     ! I: output identity matrix (2D array)
     !=================================================
-    subroutine pk_identitymatrix(N, I)
+    subroutine pk_identitymatrix(N, Iout)
         integer, intent(in) :: N
-        real(dp), intent(out) :: I(:, :)
+        real(dp), intent(out) :: Iout(:, :)
         integer :: i, j
 
         do i = 1, N
             do j = 1, N
                 if (i == j) then
-                    I(i, j) = 1.0_dp
+                    Iout(i, j) = 1.0_dp
                 else
-                    I(i, j) = 0.0_dp
+                    Iout(i, j) = 0.0_dp
                 end if
             end do
         end do
