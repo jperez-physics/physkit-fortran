@@ -22,16 +22,16 @@ This repository is intended to grow progressively as new numerical methods, phys
 ## 2. Linear Algebra ('physkit_linalg')
 
 ### Vectors
-- Dot product ✔️ 
-- Norm of a vector ✔️
-- Vector normalization ✔️
-- Cross product ✔️
+- Dot product 🟢 
+- Norm of a vector 🟢
+- Vector normalization 🟢
+- Cross product 🟢
 
 ### Matrices
-- Matrix-vector multiplication ✔️
-- Matrix-matrix multiplication ✔️
-- Zero matrix ✔️
-- Identity matrix ✔️
+- Matrix-vector multiplication 🟢
+- Matrix-matrix multiplication 🟢
+- Zero matrix 🟢
+- Identity matrix 🟢
 - Determinant
 - Trace
 - Matrix inverse
@@ -44,22 +44,22 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Cholesky decomposition
 
 
-## 3. Numerical Calculus ('physkit_numerical')
+## Numerical Calculus ('physkit_numerical')
 
 ### Numerical Differentiation
-- Forward difference ✔️
-- Backward difference ✔️
-- Central difference ✔️
-- Central second difference ✔️
+- Forward difference 🟢
+- Backward difference 🟢
+- Central difference 🟢
+- Central second difference 🟢
 - Higher-order derivatives
 - Partial derivatives
 
 ### Numerical Integration
-- Rectangular rule ✔️
-- Trapezoidal rule ✔️
-- Simpson’s rule ✔️
-- Composite Simpson’s rule ✔️
-- Adaptive Simpson's ✔️
+- Rectangular rule 🟢
+- Trapezoidal rule 🟢
+- Simpson’s rule 🟢
+- Composite Simpson’s rule 🟢
+- Adaptive Simpson's 🟢
 
 ### Nonlinear Equations
 - Bisection method
@@ -82,25 +82,25 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Convergence checks
 
 
-## 4. ODE Methods ('physkit_ode')
-- Euler method ✔️
-- Runge-Kutta 2 (RK2) ✔️
-- Runge-Kutta 4 (RK4) ✔️
-- Velocity Verlet for 2nd-order ✔️
+## ODE Methods ('physkit_ode')
+- Euler method 🟢
+- Runge-Kutta 2 (RK2) 🟢
+- Runge-Kutta 4 (RK4) 🟢
+- Velocity Verlet for 2nd-order 🟢
 - Adaptive Runge-Kutta
 
 
-## 5. Special Functions ('physkit_special')
-- Factorial
-- Combinations and permutations
-- Gamma function
+## Special Functions ('physkit_special')
+- Factorial 🟢
+- Combinations and permutations 🟢
+- Gamma function 🔵
 - Beta function
 - Bessel functions
 - Legendre polynomials
 - Hypergeometric functions
 
 
-## 6. Fourier Analysis ('physkit_fourier')
+## Fourier Analysis ('physkit_fourier')
 - Discrete Fourier Transform (DFT)
 - Fast Fourier Transform (FFT)
 - Inverse transform
