@@ -46,6 +46,11 @@ This repository is intended to grow progressively as new numerical methods, phys
 
 ## Numerical Calculus ('physkit_numerical')
 
+### Nonlinear Equations
+- Bisection method 🟢
+- Newton-Raphson method 🟢
+- Secant method
+
 ### Numerical Differentiation
 - Forward difference 🟢
 - Backward difference 🟢
@@ -60,11 +65,6 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Simpson’s rule 🟢
 - Composite Simpson’s rule 🟢
 - Adaptive Simpson's 🟢
-
-### Nonlinear Equations
-- Bisection method
-- Newton-Raphson method
-- Secant method
 
 ### Interpolation and Fitting
 - Linear interpolation

@@ -1,9 +1,13 @@
-program physkit_special
+module physkit_special
     use physkit_numerical
     use physkit_ode
     use physkit_linalg
-    use physkit_constants, only: dp
+    use physkit_constants, only: dp, pi
     implicit none
+    private
+    public :: pk_factorial, pk_gamma_real, pk_permutation, pk_combination
+
+contains
 
     !=================================================
     ! Factorial
@@ -41,18 +45,18 @@ program physkit_special
         real(dp) :: gamma
 
         if (z > 0.0_dp) then
-            contains
-                function integrating(t) result(f)
-                    real(dp), intent(in) :: t
-                    real(dp) :: f
-                    f = (log(1.0_dp/t))**(z - 1.0_dp)
-                end function integrating
-            end contains
-
             gamma = pk_adaptative_simpson(0.0_dp, 1.0_dp, 1.0e-8_dp, 0, 20, integrating)
         else
-            gamma = pi / (sin(pi*z) * pk_gamma(1.0_dp - z))
+            gamma = pi / (sin(pi*z) * pk_gamma_real(1.0_dp - z))
         end if
+
+    contains
+
+        function integrating(t) result(f)
+            real(dp), intent(in) :: t
+            real(dp) :: f
+            f = (log(1.0_dp/t))**(z - 1.0_dp)
+        end function integrating
 
     end function pk_gamma_real
 
@@ -99,4 +103,4 @@ program physkit_special
     end function pk_combination
 
 
-end program physkit_special
+end module physkit_special

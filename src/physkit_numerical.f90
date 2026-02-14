@@ -2,7 +2,7 @@ module physkit_numerical
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, pk_rectangular_rule, pk_trapezoidal_rule, pk_composite_simpson, pk_adaptative_simpson
+    public :: pk_bisection_method, pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, pk_rectangular_rule, pk_trapezoidal_rule, pk_composite_simpson, pk_adaptative_simpson
 
     interface
         function f(x)
@@ -13,6 +13,12 @@ module physkit_numerical
     end interface
 
 contains
+
+    !##################################################
+    !
+    ! Numerical differentiation methods
+    !
+    !##################################################
 
     !=================================================
     ! Foward difference approximation
@@ -77,6 +83,12 @@ contains
         
         ypp = (y(x+dx) - 2.0_dp*y(x) + y(x-dx))/ (dx**2)
     end function pk_second_central_difference
+
+    !#################################################
+    !
+    ! Numerical integration methods
+    !
+    !################################################
 
     !=================================================
     ! Rectangular rule
@@ -213,5 +225,86 @@ contains
     end if
 
     end function pk_adaptative_simpson
+
+    !###################################################
+    !
+    ! Non-linear equations solvers
+    !
+    !###################################################
+
+    !=================================================
+    ! Bisection method
+    !=================================================
+    ! a: lower bound
+    ! b: upper bound
+    ! tol: tolerance
+    ! imax: maximum iterations
+    ! root: output root of f
+    !=================================================
+    function pk_bisection_method(a, b, tol, imax, y) result(root)
+        real(dp), intent(in) :: a, b, tol
+        real(dp) :: a_local, b_local
+        integer, intent(in) :: imax
+        real(dp) :: root
+        integer :: i
+        procedure(f) :: y
+
+        if (y(a)*y(b) >= 0.0_dp) then
+            print *, "Error: y(a) and y(b) must have opposite signs"
+            root = 0.0_dp
+            return
+        end if
+
+        a_local = a
+        b_local = b
+        root = (a_local + b_local)/2.0_dp
+
+        do i = 1, imax
+            if (abs(y(root)) < tol) then
+                return
+            else if (y(root)*y(a_local) < 0.0_dp) then
+                b_local = root
+            else
+                a_local = root
+            end if
+            root = (a_local + b_local)/2.0_dp
+        end do
+
+    end function pk_bisection_method
+
+    !------------------------------------------------
+    ! Newton-Raphson method
+    !------------------------------------------------
+    ! x0: initial guess
+    ! tol: tolerance
+    ! imax: maximum iterations
+    ! root: output root of f
+    !------------------------------------------------
+    function pk_newton_raphson(x0, tol, imax, y) result(root)
+        real(dp), intent(in) :: x0, tol
+        real(dp) :: root, x, fx, dfx
+        integer, intent(in) :: imax
+        integer :: i
+        procedure(f) :: y
+
+        x = x0
+
+        do i = 1, imax
+            fx = y(x)
+            dfx = pk_central_difference(x, 1.0e-6_dp, y)
+            if (abs(fx) < tol) then
+                root = x
+                return
+            else if (dfx == 0.0_dp) then
+                print *, "Error: derivative is zero"
+                root = x
+                return
+            end if
+            x = x - fx/dfx
+        end do
+
+        root = x
+
+    end function pk_newton_raphson
 
 end module physkit_numerical
