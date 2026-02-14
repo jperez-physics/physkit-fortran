@@ -15,24 +15,96 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Build simulation-ready modules for future academic work
 - Transition from isolated scripts to structured scientific software
 
-## Current Features
+## Current Features and roadmap
+## 1. Mathematical and physical constants ('physkit_constants')
+- There are some currently, but the idea is to add more
 
-The toolkit includes modules for:
+## 2. Linear Algebra ('physkit_linalg')
 
-- Physical constants
-- Lineal algebra: Dot product, norm of a vector, cross product, vector normalization, matrix-vector multiplication, matrix-matrix multiplication, zero matrix and identity matrix
-- Numerical calculus: Foward difference, backward difference, central difference and central second difference
-- ODE methods: Euler, rk2, rk4 and velocity Verlet
+### Vectors
+- Dot product ✔️ 
+- Norm of a vector ✔️
+- Vector normalization ✔️
+- Cross product ✔️
 
-## Roadmap
+### Matrices
+- Matrix-vector multiplication ✔️
+- Matrix-matrix multiplication ✔️
+- Zero matrix ✔️
+- Identity matrix ✔️
+- Determinant
+- Trace
+- Matrix inverse
+- Pseudoinverse
 
-The toolkit will include modules for:
+### Advanced
+- Eigenvalues and eigenvectors
+- LU decomposition
+- QR decomposition
+- Cholesky decomposition
 
-- Linear algebra
-- ODE and PDE
-- Numerical calculus
-- Special functions
-- Fourier analysis
+
+## 3. Numerical Calculus ('physkit_numerical')
+
+### Numerical Differentiation
+- Forward difference ✔️
+- Backward difference ✔️
+- Central difference ✔️
+- Central second difference ✔️
+- Higher-order derivatives
+- Partial derivatives
+
+### Numerical Integration
+- Rectangular rule ✔️
+- Trapezoidal rule ✔️
+- Simpson’s rule ✔️
+- Composite Simpson’s rule ✔️
+- Adaptive Simpson's ✔️
+
+### Nonlinear Equations
+- Bisection method
+- Newton-Raphson method
+- Secant method
+
+### Interpolation and Fitting
+- Linear interpolation
+- Polynomial interpolation
+- Cubic splines
+- Least squares fitting
+
+### Series and Approximations
+- Discrete summations
+- Taylor series expansion
+
+### Error and Stability
+- Truncation error estimation
+- Stability analysis
+- Convergence checks
+
+
+## 4. ODE Methods ('physkit_ode')
+- Euler method ✔️
+- Runge-Kutta 2 (RK2) ✔️
+- Runge-Kutta 4 (RK4) ✔️
+- Velocity Verlet for 2nd-order ✔️
+- Adaptive Runge-Kutta
+
+
+## 5. Special Functions ('physkit_special')
+- Factorial
+- Combinations and permutations
+- Gamma function
+- Beta function
+- Bessel functions
+- Legendre polynomials
+- Hypergeometric functions
+
+
+## 6. Fourier Analysis ('physkit_fourier')
+- Discrete Fourier Transform (DFT)
+- Fast Fourier Transform (FFT)
+- Inverse transform
+- Signal filtering and smoothing
 
 (This may change)
 
