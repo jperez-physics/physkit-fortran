@@ -2,7 +2,7 @@ module physkit_numerical
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_fdaprox, pk_bdaprox, pk_cdaprox, pk_cddaprox, pk_rectangular, pk_trapezoidal, pk_csimpson, pk_asimpson
+    public :: pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, pk_rectangular_rule, pk_trapezoidal_rule, pk_composite_simpson, pk_adaptative_simpson
 
     interface
         function f(x)
@@ -22,13 +22,13 @@ contains
     ! y: function
     ! yp: numerical derivative of f at x
     !=================================================
-    function pk_fdaprox(x, dx, y) result(yp)
+    function pk_forward_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
         real(dp) :: yp
         procedure(f) :: y
         
         yp = (y(x+dx) - y(x))/ (dx)
-    end function pk_fdaprox
+    end function pk_forward_difference
 
     !=================================================
     ! Backward difference approximation
@@ -38,13 +38,13 @@ contains
     ! y: function
     ! yp: numerical derivative of f at x
     !=================================================
-    function pk_bdaprox(x, dx, y) result(yp)
+    function pk_backward_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
         real(dp) :: yp
         procedure(f) :: y
         
         yp = (y(x) - y(x-dx))/ (dx)
-    end function pk_bdaprox
+    end function pk_backward_difference
 
     !=================================================
     ! Central difference approximation
@@ -54,13 +54,13 @@ contains
     ! y: function
     ! yp: numerical derivative of f at x
     !=================================================
-    function pk_cdaprox(x, dx, y) result(yp)
+    function pk_central_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
         real(dp) :: yp
         procedure(f) :: y
         
         yp = (y(x + dx) - y(x - dx))/ (2*dx)
-    end function pk_cdaprox
+    end function pk_central_difference
 
     !=================================================
     ! Central second difference approximation
@@ -70,13 +70,13 @@ contains
     ! y: function
     ! ypp: numerical second derivative of f at x
     !=================================================
-    function pk_cddaprox(x, dx, y) result(ypp)
+    function pk_second_central_difference(x, dx, y) result(ypp)
         real(dp), intent(in) :: x, dx
         real(dp) :: ypp
         procedure(f) :: y
         
         ypp = (y(x+dx) - 2.0_dp*y(x) + y(x-dx))/ (dx**2)
-    end function pk_cddaprox
+    end function pk_second_central_difference
 
     !=================================================
     ! Rectangular rule
@@ -88,7 +88,7 @@ contains
     ! y: function
     ! Integral: numerical integral of f from x0 to x1
     !=================================================
-    function pk_rectangular(x0, x1, N, y) result(Integral)
+    function pk_rectangular_rule(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
         real(dp) :: dx, Integral
         integer, intent(in) :: N
@@ -102,7 +102,7 @@ contains
             Integral = Integral + y(x0 + i*dx)*dx
         end do
 
-    end function pk_rectangular
+    end function pk_rectangular_rule
 
     !=================================================
     ! Trapezoidal rule
@@ -114,7 +114,7 @@ contains
     ! y: function
     ! Integral: numerical integral of f from x0 to x1
     !=================================================
-    function pk_trapezoidal(x0, x1, N, y) result(Integral)
+    function pk_trapezoidal_rule(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
         real(dp) :: dx, Integral
         integer, intent(in) :: N
@@ -130,7 +130,7 @@ contains
 
         Integral = Integral*dx
 
-    end function pk_trapezoidal
+    end function pk_trapezoidal_rule
 
     !=================================================
     ! Simpson's rule
@@ -159,7 +159,7 @@ contains
     ! y: function
     ! Integral: numerical integral of f from x0 to x1
     !=================================================
-    function pk_csimpson(x0, x1, N, y) result(Integral)
+    function pk_composite_simpson(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
         real(dp) :: dx, Integral
         integer, intent(in) :: N
@@ -182,7 +182,7 @@ contains
 
         Integral = Integral*dx/3.0_dp
 
-    end function pk_csimpson
+    end function pk_composite_simpson
 
     !=================================================
     ! Adaptative Simpson's
@@ -194,7 +194,7 @@ contains
     ! y: function
     ! Integral: numerical integral of f from x0 to x1
     !=================================================
-    recursive function pk_asimpson(x0, x1, tol, i, imax, y) result(Integral)
+    recursive function pk_adaptative_simpson(x0, x1, tol, i, imax, y) result(Integral)
     real(dp), intent(in) :: x0, x1, tol
     real(dp) :: Integral, m, S, S1, S2
     integer, intent(in) :: i, imax
@@ -209,9 +209,9 @@ contains
     if (abs(S1 + S2 - S) < 15.0_dp*tol .or. i >= imax) then
         Integral = S1 + S2 + ((S1 + S2 - S)/15.0_dp)
     else
-        Integral = pk_asimpson(x0, m, tol/2, i+1, imax, y) + pk_asimpson(m, x1, tol/2, i+1, imax, y)
+        Integral = pk_adaptative_simpson(x0, m, tol/2, i+1, imax, y) + pk_adaptative_simpson(m, x1, tol/2, i+1, imax, y)
     end if
 
-    end function pk_asimpson
+    end function pk_adaptative_simpson
 
 end module physkit_numerical

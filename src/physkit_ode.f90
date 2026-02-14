@@ -2,7 +2,7 @@ module physkit_ode
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_euler, pk_rk2, pk_rk4, pk_verlet
+    public :: pk_euler_method, pk_rk2, pk_rk4, pk_velocity_verlet
 
     interface
         function f(x, y)
@@ -24,7 +24,7 @@ contains
     ! ynext: output y value at x1
     ! yfunc: function that computes dy/dx = f(x, y)
     !=================================================
-    subroutine pk_euler(dx, x0, x1, yinitial, ynext, yfunc)
+    subroutine pk_euler_method(dx, x0, x1, yinitial, ynext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, x0, x1
         real(dp), intent(out) :: ynext
         procedure(f) :: yfunc
@@ -43,7 +43,7 @@ contains
 
         ynext = y
 
-    end subroutine pk_euler
+    end subroutine pk_euler_method
 
     !=================================================
     ! RK2 Method for ODE Integration
@@ -62,7 +62,7 @@ contains
 
         real(dp) :: y, x, k1, k2
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot ser cero"
+        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
         N = nint((x1 - x0) / dx)
         y = yinitial
         x = x0
@@ -124,9 +124,9 @@ contains
     ! ynext: output position at x1
     ! vnext: output velocity at x1
     ! yfunc: function that computes acceleration a(x, y) = d2y/dx2
-    ! NOTE: Here 'yfunc(x,y)' must return la acceleration (second order)
+    ! NOTE: Here 'yfunc(x,y)' must return the acceleration (second order)
     !=================================================
-    subroutine pk_verlet(dx, x0, x1, yinitial, vinitial, ynext, vnext, yfunc)
+    subroutine pk_velocity_verlet(dx, x0, x1, yinitial, vinitial, ynext, vnext, yfunc)
         real(dp), intent(in)  :: dx, yinitial, vinitial, x0, x1
         real(dp), intent(out) :: ynext, vnext
         procedure(f) :: yfunc
@@ -150,6 +150,6 @@ contains
         ynext = y
         vnext = v
 
-    end subroutine pk_verlet
+    end subroutine pk_velocity_verlet
 
 end module physkit_ode

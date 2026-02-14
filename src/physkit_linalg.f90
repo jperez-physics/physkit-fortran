@@ -2,7 +2,7 @@ module physkit_linalg
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_dot, pk_norm, pk_cross, pk_normalize, pk_prodmatvec, pk_prodmatmat, pk_zeromatrix, pk_identitymatrix
+    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_zero_matrix, pk_identity_matrix
 
 contains
 
@@ -13,7 +13,7 @@ contains
     ! b: second vector (array)
     ! dotprod: dot product of a and b
     !=================================================
-    function pk_dot(a, b) result(dotprod)
+    function pk_dot_product(a, b) result(dotprod)
         real(dp), intent(in) :: a(:), b(:)
         real(dp) :: dotprod
         integer :: i, N
@@ -26,7 +26,7 @@ contains
             dotprod = dotprod + a(i) * b(i)
         end do
 
-    end function pk_dot
+    end function pk_dot_product
 
     !=================================================
     ! Norm of a vector
@@ -34,7 +34,7 @@ contains
     ! a: vector (array)
     ! norm: norm of a vector a
     !=================================================
-    function pk_norm(a) result(norm)
+    function pk_vector_norm(a) result(norm)
         real(dp), intent(in) :: a(:)
         real(dp) :: norm
         integer :: i, N
@@ -49,7 +49,7 @@ contains
 
         norm = sqrt(norm)
 
-    end function pk_norm
+    end function pk_vector_norm
 
     !=================================================
     ! Cross product of two 3D vectors
@@ -58,7 +58,7 @@ contains
     ! b: second vector (array)
     ! crossprod: cross product of a and b
     !=================================================
-    function pk_cross(a, b) result(crossprod)
+    function pk_cross_product(a, b) result(crossprod)
         real(dp), intent(in) :: a(:), b(:)
         real(dp) :: crossprod(3)
         integer :: i, N
@@ -68,7 +68,7 @@ contains
         crossprod(2) = a(3)*b(1) - a(1)*b(3)
         crossprod(3) = a(1)*b(2) - a(2)*b(1)
 
-    end function pk_cross
+    end function pk_cross_product
 
     !=================================================
     ! Normalization of a vector
@@ -76,7 +76,7 @@ contains
     ! a: vector (array)
     ! normalization: normalization of a vector a
     !=================================================
-    function pk_normalize(a) result(normalization)
+    function pk_vector_normalize(a) result(normalization)
         real(dp), intent(in) :: a(:)
         real(dp) :: normalization(size(a))
         real(dp) :: norm
@@ -84,7 +84,7 @@ contains
 
         if (size(a) == 0) stop "Error: vector must be non-empty"
         N = size(a)
-        norm = pk_norm(a)
+        norm = pk_vector_norm(a)
 
         if (norm == 0.0_dp) stop "Error: cannot normalize zero vector"
 
@@ -92,7 +92,7 @@ contains
             normalization(i) = a(i) / norm
         end do
 
-    end function pk_normalize
+    end function pk_vector_normalize
 
     !=================================================
     ! Matrix-vector multiplication
@@ -101,7 +101,7 @@ contains
     ! x: vector (array)
     ! y: output vector (array)
     !=================================================
-    subroutine pk_prodmatvec(A, x, y)
+    subroutine pk_matrix_vector_product(A, x, y)
         real(dp), intent(in) :: A(:, :), x(:)
         real(dp), intent(out) :: y(:)
         integer :: i, j, N, M
@@ -118,7 +118,7 @@ contains
             end do
         end do
 
-    end subroutine pk_prodmatvec
+    end subroutine pk_matrix_vector_product
 
     !=================================================
     ! Matrix-matrix multiplication
@@ -127,7 +127,7 @@ contains
     ! B: second matrix (2D array)
     ! C: output matrix (2D array)
     !=================================================
-    subroutine pk_prodmatmat(A, B, C)
+    subroutine pk_matrix_matrix_product(A, B, C)
         real(dp), intent(in) :: A(:, :), B(:, :)
         real(dp), intent(out) :: C(:, :)
         integer :: i, j, k, N, M, P
@@ -147,7 +147,7 @@ contains
             end do
         end do
 
-    end subroutine pk_prodmatmat
+    end subroutine pk_matrix_matrix_product
 
     !=================================================
     ! Zero Matrix
@@ -156,7 +156,7 @@ contains
     ! M: number of columns
     ! Z: output zero matrix (2D array)
     !=================================================
-    subroutine pk_zeromatrix(N, M, Z)
+    subroutine pk_zero_matrix(N, M, Z)
         integer, intent(in) :: N, M
         real(dp), intent(out) :: Z(:, :)
         integer :: i, j
@@ -167,7 +167,7 @@ contains
             end do
         end do
 
-    end subroutine pk_zeromatrix
+    end subroutine pk_zero_matrix
 
     !=================================================
     ! Identity Matrix
@@ -175,7 +175,7 @@ contains
     ! N: size of the identity matrix (N x N)
     ! I: output identity matrix (2D array)
     !=================================================
-    subroutine pk_identitymatrix(N, Iout)
+    subroutine pk_identity_matrix(N, Iout)
         integer, intent(in) :: N
         real(dp), intent(out) :: Iout(:, :)
         integer :: i, j
@@ -190,6 +190,6 @@ contains
             end do
         end do
 
-    end subroutine pk_identitymatrix
+    end subroutine pk_identity_matrix
 
 end module physkit_linalg
