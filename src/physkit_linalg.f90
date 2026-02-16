@@ -2,7 +2,7 @@ module physkit_linalg
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_zero_matrix, pk_identity_matrix
+    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_zero_matrix, pk_identity_matrix, pk_trace
 
 contains
 
@@ -136,7 +136,10 @@ contains
         M = size(A, 2)
         P = size(B, 2)
 
-        if (size(B, 1) /= M) stop "Error: incompatible matrix dimensions"
+        if (size(B, 1) /= M) then
+            print*, "Error: incompatible matrix dimensions"
+            return
+        end if
 
         do i = 1, N
             do j = 1, P
@@ -191,5 +194,32 @@ contains
         end do
 
     end subroutine pk_identity_matrix
+
+    !=================================================
+    ! Matrix trace
+    !=================================================
+    ! A: matrix input
+    ! trace: result
+    !=================================================
+    function pk_trace(A) result(trace)
+        real(dp), intent(in) :: A(:, :)
+        real(dp) :: trace
+        integer :: i, N, M
+
+        N = size(A, 1)
+        M = size(A, 2)
+        trace = 0.0_dp
+        
+        if (N /= M) then 
+            print*, "Error: incompatible matrix dimensions"
+            trace = -1.0_dp
+            return
+        else
+            do i = 1, N
+                trace = trace + A(i, i)
+            end do
+        end if
+
+    end function pk_trace
 
 end module physkit_linalg

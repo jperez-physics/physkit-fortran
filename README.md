@@ -33,7 +33,7 @@ This repository is intended to grow progressively as new numerical methods, phys
 - Zero matrix 🟢
 - Identity matrix 🟢
 - Determinant
-- Trace
+- Trace 🟢
 - Matrix inverse
 - Pseudoinverse
 
@@ -49,7 +49,7 @@ This repository is intended to grow progressively as new numerical methods, phys
 ### Nonlinear Equations
 - Bisection method 🟢
 - Newton-Raphson method 🟢
-- Secant method
+- Secant method 🟢
 
 ### Numerical Differentiation
 - Forward difference 🟢
@@ -93,8 +93,8 @@ This repository is intended to grow progressively as new numerical methods, phys
 ## Special Functions ('physkit_special')
 - Factorial 🟢
 - Combinations and permutations 🟢
-- Gamma function 🔵
-- Beta function
+- Gamma function 🟢
+- Beta function 🟢
 - Bessel functions
 - Legendre polynomials
 - Hypergeometric functions

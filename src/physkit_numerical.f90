@@ -2,7 +2,10 @@ module physkit_numerical
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_bisection_method, pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, pk_rectangular_rule, pk_trapezoidal_rule, pk_composite_simpson, pk_adaptative_simpson
+    public :: pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, &
+              pk_rectangular_rule, pk_trapezoidal_rule, pk_simpson, pk_composite_simpson, pk_simpson_complex, &
+              pk_adaptative_simpson, pk_adaptative_simpson_complex, &
+              pk_bisection_method, pk_newton_raphson, pk_secant_method
 
     interface
         function f(x)
@@ -10,6 +13,14 @@ module physkit_numerical
             real(dp) :: f
             real(dp), intent(in) :: x
         end function f
+    end interface
+
+       interface
+        function f_complex(x)
+            use physkit_constants, only: dp
+            complex(dp) :: f_complex
+            complex(dp), intent(in) :: x
+        end function f_complex
     end interface
 
 contains
@@ -197,6 +208,23 @@ contains
     end function pk_composite_simpson
 
     !=================================================
+    ! Simpson's rule for complex functions
+    !=================================================
+    ! x0: down limit
+    ! x1: upper limit
+    ! y: function
+    ! Integral: numerical integral of f from x0 to x1
+    !=================================================
+    function pk_simpson_complex(x0, x1, y) result(Integral)
+        complex(dp), intent(in) :: x0, x1
+        complex(dp) :: Integral
+        procedure(f_complex) :: y
+        
+        Integral = (x1 - x0)/6.0_dp*(y(x0) + 4.0_dp*y((x0 + x1)/2.0_dp) + y(x1))
+
+    end function pk_simpson_complex
+
+    !=================================================
     ! Adaptative Simpson's
     !=================================================
     ! x0: down limit
@@ -225,6 +253,40 @@ contains
     end if
 
     end function pk_adaptative_simpson
+
+    !=================================================
+    ! Adaptive Simpson's for complex functions
+    !=================================================
+    ! x0: lower limit
+    ! x1: upper limit
+    ! tol: tolerance
+    ! i: current recursion depth
+    ! imax: maximum recursion depth
+    ! y: function
+    ! Integral: numerical integral of f from x0 to x1
+    !=================================================
+    recursive function pk_adaptative_simpson_complex(x0, x1, tol, i, imax, y) result(Integral)
+        complex(dp), intent(in) :: x0, x1
+        real(dp), intent(in) :: tol
+        integer, intent(in) :: i, imax
+        complex(dp) :: Integral, m, S, S1, S2
+        procedure(f_complex) :: y 
+
+        m = (x0 + x1)/2.0_dp
+
+        S  = pk_simpson_complex(x0, x1, y)
+        S1 = pk_simpson_complex(x0, m, y)
+        S2 = pk_simpson_complex(m, x1, y)
+
+        if (abs(S1 + S2 - S) < 15.0_dp*tol .or. i >= imax) then
+            Integral = S1 + S2 + (S1 + S2 - S)/15.0_dp
+        else
+            Integral = pk_adaptative_simpson_complex(x0, m, tol/2.0_dp, i+1, imax, y) + &
+                    pk_adaptative_simpson_complex(m, x1, tol/2.0_dp, i+1, imax, y)
+        end if
+
+    end function pk_adaptative_simpson_complex
+
 
     !###################################################
     !
@@ -270,16 +332,17 @@ contains
             root = (a_local + b_local)/2.0_dp
         end do
 
+        print *, "Warning: maximum number of iterations reached, result may not be accurate"
     end function pk_bisection_method
 
-    !------------------------------------------------
+    !=================================================
     ! Newton-Raphson method
-    !------------------------------------------------
+    !=================================================
     ! x0: initial guess
     ! tol: tolerance
     ! imax: maximum iterations
     ! root: output root of f
-    !------------------------------------------------
+    !=================================================
     function pk_newton_raphson(x0, tol, imax, y) result(root)
         real(dp), intent(in) :: x0, tol
         real(dp) :: root, x, fx, dfx
@@ -304,7 +367,51 @@ contains
         end do
 
         root = x
-
+        print *, "Warning: maximum number of iterations reached, result may not be accurate"
     end function pk_newton_raphson
+
+    !=================================================
+    ! Secant method
+    !=================================================
+    ! x0: first initial guess
+    ! x1: second initial guess
+    ! tol: tolerance
+    ! imax: maximum iterations
+    ! root: output root of f
+    !=================================================
+    function pk_secant_method(x0, x1, tol, imax, y) result(root)
+    real(dp), intent(in) :: x0, x1, tol
+    real(dp) :: root, x_new, x0_local, x1_local, fx0, fx1
+    integer, intent(in) :: imax
+    integer :: i
+    procedure(f) :: y
+        
+        fx0 = y(x0)
+        fx1 = y(x1)
+        x0_local = x0
+        x1_local = x1
+
+        do i = 1, imax
+            if (abs(fx1 - fx0) < 1.0e-14_dp) then
+                print*, "Error: division by zero in secant method"
+                root = x1_local
+                return
+            end if
+            x_new = x1_local - ((x1_local - x0_local)/(fx1 - fx0)) * fx1
+        
+            if (abs(x_new - x1_local) < tol) then
+                root = x_new
+                return
+            end if
+
+            x0_local = x1_local
+            x1_local = x_new
+            fx0 = fx1
+            fx1 = y(x1_local)
+        end do
+
+        root = x1_local
+        print*, "Warning: maximum number of iterations reached, result may not be accurate"
+    end function
 
 end module physkit_numerical
