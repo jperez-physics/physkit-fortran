@@ -40,7 +40,7 @@ This repository is intended to grow progressively as new numerical methods, phys
 
 ### Advanced
 - Eigenvalues and eigenvectors
-- LU decomposition
+- LU decomposition 🟢
 - QR decomposition
 - Cholesky decomposition
 
