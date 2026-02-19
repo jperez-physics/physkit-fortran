@@ -1,17 +1,24 @@
+!> @author Jaime (and contributors)
+!> @brief Module for linear algebra operations.
+!> @details Provides basic and advanced linear algebra tools including vector operations,
+!>          matrix multiplications, products, and decompositions.
 module physkit_linalg
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_hadamard_product, pk_zero_matrix, pk_identity_matrix, pk_trace
+
+    ! Public methods
+    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, &
+              pk_matrix_vector_product, pk_matrix_matrix_product, pk_hadamard_product, &
+              pk_zero_matrix, pk_identity_matrix, pk_trace
 
 contains
 
     !=================================================
-    ! Dot product of two vectors
-    !=================================================
-    ! a: first vector (array)
-    ! b: second vector (array)
-    ! dotprod: dot product of a and b
+    !> @brief Computes the dot product of two vectors.
+    !> @param a First vector.
+    !> @param b Second vector.
+    !> @return Scaler dot product result.
     !=================================================
     function pk_dot_product(a, b) result(dotprod)
         real(dp), intent(in) :: a(:), b(:)
@@ -29,10 +36,9 @@ contains
     end function pk_dot_product
 
     !=================================================
-    ! Norm of a vector
-    !=================================================
-    ! a: vector (array)
-    ! norm: norm of a vector a
+    !> @brief Computes the Euclidean norm (L2 norm) of a vector.
+    !> @param a Input vector.
+    !> @return Euclidean norm of the vector.
     !=================================================
     function pk_vector_norm(a) result(norm)
         real(dp), intent(in) :: a(:)
@@ -52,11 +58,10 @@ contains
     end function pk_vector_norm
 
     !=================================================
-    ! Cross product of two 3D vectors
-    !=================================================
-    ! a: first vector (array)
-    ! b: second vector (array)
-    ! crossprod: cross product of a and b
+    !> @brief Computes the cross product of two 3-dimensional vectors.
+    !> @param a First 3D vector.
+    !> @param b Second 3D vector.
+    !> @return Resulting 3D vector perpendicular to both input vectors.
     !=================================================
     function pk_cross_product(a, b) result(crossprod)
         real(dp), intent(in) :: a(:), b(:)
@@ -71,10 +76,9 @@ contains
     end function pk_cross_product
 
     !=================================================
-    ! Normalization of a vector
-    !=================================================
-    ! a: vector (array)
-    ! normalization: normalization of a vector a
+    !> @brief Normalizes a vector to have unit length.
+    !> @param a Input vector to be normalized.
+    !> @return Unit vector in the same direction as a.
     !=================================================
     function pk_vector_normalize(a) result(normalization)
         real(dp), intent(in) :: a(:)
@@ -95,11 +99,10 @@ contains
     end function pk_vector_normalize
 
     !=================================================
-    ! Matrix-vector multiplication
-    !=================================================
-    ! A: matrix (2D array)
-    ! x: vector (array)
-    ! y: output vector (array)
+    !> @brief Performs matrix-vector multiplication y = A * x.
+    !> @param A Input matrix of size (M, N).
+    !> @param x Input vector of size (N).
+    !> @param y Output vector of size (M).
     !=================================================
     subroutine pk_matrix_vector_product(A, x, y)
         real(dp), intent(in) :: A(:, :), x(:)
@@ -121,11 +124,10 @@ contains
     end subroutine pk_matrix_vector_product
 
     !=================================================
-    ! Matrix-matrix multiplication
-    !=================================================
-    ! A: first matrix (2D array)
-    ! B: second matrix (2D array)
-    ! C: output matrix (2D array)
+    !> @brief Performs matrix-matrix multiplication C = A * B.
+    !> @param A Input matrix of size (N, M).
+    !> @param B Input matrix of size (M, P).
+    !> @param C Output matrix of size (N, P).
     !=================================================
     subroutine pk_matrix_matrix_product(A, B, C)
         real(dp), intent(in) :: A(:, :), B(:, :)
@@ -153,11 +155,10 @@ contains
     end subroutine pk_matrix_matrix_product
 
     !=================================================
-    ! Hadamard product
-    !=================================================
-    ! A: first matrix (2D array)
-    ! B: second matrix (2D array)
-    ! C: output matrix (2D array)
+    !> @brief Computes the Hadamard product (element-wise multiplication) of two matrices C = A ⊙ B.
+    !> @param A First matrix.
+    !> @param B Second matrix.
+    !> @param C Output matrix containing element-wise products.
     !=================================================
     subroutine pk_hadamard_product(A, B, C)
         real(dp), intent(in) :: A(:, :), B(:, :)
@@ -183,11 +184,10 @@ contains
     end subroutine pk_hadamard_product
 
     !=================================================
-    ! Zero Matrix
-    !=================================================
-    ! N: number of rows
-    ! M: number of columns
-    ! Z: output zero matrix (2D array)
+    !> @brief Initializes a matrix with zeros.
+    !> @param N Number of rows.
+    !> @param M Number of columns.
+    !> @param Z Output matrix of size (N, M).
     !=================================================
     subroutine pk_zero_matrix(N, M, Z)
         integer, intent(in) :: N, M
@@ -203,10 +203,9 @@ contains
     end subroutine pk_zero_matrix
 
     !=================================================
-    ! Identity Matrix
-    !=================================================
-    ! N: size of the identity matrix (N x N)
-    ! I: output identity matrix (2D array)
+    !> @brief Generates an identity matrix of size N x N.
+    !> @param N Dimension of the identity matrix.
+    !> @param Iout Output identity matrix.
     !=================================================
     subroutine pk_identity_matrix(N, Iout)
         integer, intent(in) :: N
@@ -226,10 +225,9 @@ contains
     end subroutine pk_identity_matrix
 
     !=================================================
-    ! Matrix trace
-    !=================================================
-    ! A: matrix input
-    ! trace: result
+    !> @brief Computes the trace of a square matrix (sum of diagonal elements).
+    !> @param A Square matrix.
+    !> @return Sum of elements on the main diagonal. Returns -1 on non-square matrices.
     !=================================================
     function pk_trace(A) result(trace)
         real(dp), intent(in) :: A(:, :)
@@ -253,11 +251,10 @@ contains
     end function pk_trace
 
     !=================================================
-    ! LU Decomposition
-    !=================================================
-    ! A: matrix input
-    ! L: lower triangular matrix
-    ! U: upper triangular matrix
+    !> @brief Performs LU decomposition of a square matrix A = L * U.
+    !> @param A Input square matrix.
+    !> @param L Output lower triangular matrix with unit diagonal.
+    !> @param U Output upper triangular matrix.
     !=================================================
     subroutine pk_lu_decomposition(A, L, U)
         real(dp), intent(in) :: A(:, :)

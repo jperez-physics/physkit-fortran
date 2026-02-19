@@ -1,3 +1,7 @@
+!> @author Jaime (and contributors)
+!> @brief Module for special mathematical functions.
+!> @details Implementation of common special functions like Factorial, Gamma (real and complex),
+!>          Beta, Permutations, and Combinations.
 module physkit_special
     use physkit_numerical
     use physkit_ode
@@ -10,10 +14,9 @@ module physkit_special
 contains
 
     !=================================================
-    ! Factorial
-    !=================================================
-    ! n: input integer
-    ! factorial: output factorial of n
+    !> @brief Computes the factorial of a non-negative integer n!
+    !> @param n Non-negative integer.
+    !> @return Factorial of n. Returns -1 on error (n < 0).
     !=================================================
     function pk_factorial(n) result(factorial)
     integer, intent(in) :: n
@@ -35,10 +38,9 @@ contains
     end function
 
     !=================================================
-    ! Gamma function (Lanczos)
-    !=================================================
-    ! z: input value
-    ! gamma: output value
+    !> @brief Gamma function for real arguments using Lanczos approximation.
+    !> @param z Real input value.
+    !> @return Gamma(z).
     !=================================================
     recursive function pk_gamma_real(z) result(gamma)
         real(dp), intent(in) :: z
@@ -76,10 +78,9 @@ contains
     end function pk_gamma_real
 
     !=================================================
-    ! Gamma function for complex numbers (Lanczos)
-    !=================================================
-    ! z: input value
-    ! gamma: output value
+    !> @brief Gamma function for complex arguments using Lanczos approximation.
+    !> @param z Complex input value.
+    !> @return Gamma(z).
     !=================================================
     recursive function pk_gamma(z) result(gamma)
         complex(dp), intent(in) :: z
@@ -116,10 +117,10 @@ contains
     end function pk_gamma
 
     !=================================================
-    ! Beta function
-    !=================================================
-    ! x: input value
-    ! beta: output value
+    !> @brief Beta function B(x, y).
+    !> @param x First real input value.
+    !> @param y Second real input value.
+    !> @return Value of the Beta function.
     !=================================================
     function pk_beta(x, y) result(beta)
         real(dp), intent(in) :: x, y
@@ -130,11 +131,10 @@ contains
     end function pk_beta
 
     !=================================================
-    ! Permutation
-    !=================================================
-    ! n: total number of items
-    ! r: number of items to choose
-    ! permutation: output number of permutations
+    !> @brief Calculates the number of permutations P(n, r).
+    !> @param n Total number of items.
+    !> @param r Number of items to choose.
+    !> @return Number of permutations. Returns -1 on invalid input.
     !=================================================
     function pk_permutation(n, r) result(permutation)
         integer, intent(in) :: n, r
@@ -151,11 +151,10 @@ contains
     end function pk_permutation
 
     !=================================================
-    ! Combination
-    !=================================================
-    ! n: total number of items
-    ! r: number of items to choose
-    ! combination: output number of combinations
+    !> @brief Calculates the number of combinations C(n, r).
+    !> @param n Total number of items.
+    !> @param r Number of items to choose.
+    !> @return Number of combinations. Returns -1 on invalid input.
     !=================================================
     function pk_combination(n, r) result(combination)
         integer, intent(in) :: n, r

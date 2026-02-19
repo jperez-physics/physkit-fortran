@@ -1,21 +1,28 @@
+!> @author Jaime (and contributors)
+!> @brief Module for numerical methods including differentiation, integration, and root-finding.
+!> @details Implementation of common numerical algorithms for real and complex functions,
+!>          providing tools for calculus and solving non-linear equations.
 module physkit_numerical
     use physkit_constants, only: dp
     implicit none
     private
+
+    ! Public methods
     public :: pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, &
               pk_rectangular_rule, pk_trapezoidal_rule, pk_simpson, pk_composite_simpson, pk_simpson_complex, &
               pk_adaptative_simpson, pk_adaptative_simpson_complex, &
               pk_bisection_method, pk_newton_raphson, pk_secant_method
 
+    ! Abstract interfaces for user-defined functions
     interface
+        !> @brief Interface for real scalar functions f(x)
         function f(x)
             use physkit_constants, only: dp
             real(dp) :: f
             real(dp), intent(in) :: x
         end function f
-    end interface
 
-       interface
+        !> @brief Interface for complex scalar functions f(z)
         function f_complex(x)
             use physkit_constants, only: dp
             complex(dp) :: f_complex
@@ -26,18 +33,15 @@ module physkit_numerical
 contains
 
     !##################################################
-    !
-    ! Numerical differentiation methods
-    !
+    ! Numerical Differentiation Methods
     !##################################################
 
     !=================================================
-    ! Foward difference approximation
-    !=================================================
-    ! x: point at which to evaluate the derivative
-    ! dx: step size
-    ! y: function
-    ! yp: numerical derivative of f at x
+    !> @brief Computes the first derivative using forward difference.
+    !> @param x Point at which to evaluate the derivative.
+    !> @param dx Step size.
+    !> @param y Real function f(x).
+    !> @return Numerical derivative f'(x).
     !=================================================
     function pk_forward_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
@@ -48,12 +52,11 @@ contains
     end function pk_forward_difference
 
     !=================================================
-    ! Backward difference approximation
-    !=================================================
-    ! x: point at which to evaluate the derivative
-    ! dx: step size
-    ! y: function
-    ! yp: numerical derivative of f at x
+    !> @brief Computes the first derivative using backward difference.
+    !> @param x Point at which to evaluate the derivative.
+    !> @param dx Step size.
+    !> @param y Real function f(x).
+    !> @return Numerical derivative f'(x).
     !=================================================
     function pk_backward_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
@@ -64,12 +67,11 @@ contains
     end function pk_backward_difference
 
     !=================================================
-    ! Central difference approximation
-    !=================================================
-    ! x: point at which to evaluate the derivative
-    ! dx: step size
-    ! y: function
-    ! yp: numerical derivative of f at x
+    !> @brief Computes the first derivative using central difference (higher accuracy).
+    !> @param x Point at which to evaluate the derivative.
+    !> @param dx Step size.
+    !> @param y Real function f(x).
+    !> @return Numerical derivative f'(x).
     !=================================================
     function pk_central_difference(x, dx, y) result(yp)
         real(dp), intent(in) :: x, dx
@@ -80,12 +82,11 @@ contains
     end function pk_central_difference
 
     !=================================================
-    ! Central second difference approximation
-    !=================================================
-    ! x: point at which to evaluate the second derivative
-    ! dx: step size
-    ! y: function
-    ! ypp: numerical second derivative of f at x
+    !> @brief Computes the second derivative using central difference.
+    !> @param x Point at which to evaluate the derivative.
+    !> @param dx Step size.
+    !> @param y Real function f(x).
+    !> @return Numerical second derivative f''(x).
     !=================================================
     function pk_second_central_difference(x, dx, y) result(ypp)
         real(dp), intent(in) :: x, dx
@@ -96,20 +97,16 @@ contains
     end function pk_second_central_difference
 
     !#################################################
-    !
-    ! Numerical integration methods
-    !
-    !################################################
+    ! Numerical Integration Methods
+    !#################################################
 
     !=================================================
-    ! Rectangular rule
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! N: number of subdivisions
-    ! dx: step size
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Simple rectangular rule for numerical integration.
+    !> @param x0 Lower integration limit.
+    !> @param x1 Upper integration limit.
+    !> @param N Number of sub-intervals.
+    !> @param y Real function f(x).
+    !> @return Numerical integral of f from x0 to x1.
     !=================================================
     function pk_rectangular_rule(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
@@ -128,14 +125,12 @@ contains
     end function pk_rectangular_rule
 
     !=================================================
-    ! Trapezoidal rule
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! N: number of subdivisions
-    ! dx: step size
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Trapezoidal rule for numerical integration.
+    !> @param x0 Lower integration limit.
+    !> @param x1 Upper integration limit.
+    !> @param N Number of sub-intervals.
+    !> @param y Real function f(x).
+    !> @return Numerical integral of f from x0 to x1.
     !=================================================
     function pk_trapezoidal_rule(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
@@ -156,12 +151,11 @@ contains
     end function pk_trapezoidal_rule
 
     !=================================================
-    ! Simpson's rule
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Simpson's 1/3 rule for numerical integration.
+    !> @param x0 Lower integration limit.
+    !> @param x1 Upper integration limit.
+    !> @param y Real function f(x).
+    !> @return Numerical integral of f from x0 to x1.
     !=================================================
     function pk_simpson(x0, x1, y) result(Integral)
         real(dp), intent(in) :: x0, x1
@@ -173,14 +167,12 @@ contains
     end function pk_simpson
 
     !=================================================
-    ! Composite Simpson's rule
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! N: number of subdivisions (must be even)
-    ! dx: step size
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Composite Simpson's 1/3 rule.
+    !> @param x0 Lower integration limit.
+    !> @param x1 Upper integration limit.
+    !> @param N Number of sub-intervals (must be even).
+    !> @param y Real function f(x).
+    !> @return Numerical integral of f from x0 to x1.
     !=================================================
     function pk_composite_simpson(x0, x1, N, y) result(Integral)
         real(dp), intent(in) :: x0, x1
@@ -208,12 +200,11 @@ contains
     end function pk_composite_simpson
 
     !=================================================
-    ! Simpson's rule for complex functions
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Simpson's 1/3 rule for complex functions.
+    !> @param x0 Complex lower limit.
+    !> @param x1 Complex upper limit.
+    !> @param y Complex function f(z).
+    !> @return Numerical complex integral.
     !=================================================
     function pk_simpson_complex(x0, x1, y) result(Integral)
         complex(dp), intent(in) :: x0, x1
@@ -225,14 +216,14 @@ contains
     end function pk_simpson_complex
 
     !=================================================
-    ! Adaptative Simpson's
-    !=================================================
-    ! x0: down limit
-    ! x1: upper limit
-    ! tol: tolerance
-    ! imax: maximum iterations
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Adaptive Simpson's method for automatic step size control.
+    !> @param x0 Lower integration limit.
+    !> @param x1 Upper integration limit.
+    !> @param tol Numerical tolerance.
+    !> @param i Current recursion depth (start with 0).
+    !> @param imax Maximum recursion depth.
+    !> @param y Real function f(x).
+    !> @return Numerical integral result.
     !=================================================
     recursive function pk_adaptative_simpson(x0, x1, tol, i, imax, y) result(Integral)
     real(dp), intent(in) :: x0, x1, tol
@@ -255,15 +246,14 @@ contains
     end function pk_adaptative_simpson
 
     !=================================================
-    ! Adaptive Simpson's for complex functions
-    !=================================================
-    ! x0: lower limit
-    ! x1: upper limit
-    ! tol: tolerance
-    ! i: current recursion depth
-    ! imax: maximum recursion depth
-    ! y: function
-    ! Integral: numerical integral of f from x0 to x1
+    !> @brief Adaptive Simpson's method for complex functions.
+    !> @param x0 Complex lower limit.
+    !> @param x1 Complex upper limit.
+    !> @param tol Numerical tolerance.
+    !> @param i Current recursion depth (start with 0).
+    !> @param imax Maximum recursion depth.
+    !> @param y Complex function f(z).
+    !> @return Numerical complex integral result.
     !=================================================
     recursive function pk_adaptative_simpson_complex(x0, x1, tol, i, imax, y) result(Integral)
         complex(dp), intent(in) :: x0, x1
@@ -289,19 +279,17 @@ contains
 
 
     !###################################################
-    !
-    ! Non-linear equations solvers
-    !
+    ! Non-linear Equation Solvers (Root-Finding)
     !###################################################
 
     !=================================================
-    ! Bisection method
-    !=================================================
-    ! a: lower bound
-    ! b: upper bound
-    ! tol: tolerance
-    ! imax: maximum iterations
-    ! root: output root of f
+    !> @brief Bisection method for finding roots of f(x) = 0.
+    !> @param a Lower bound of the interval.
+    !> @param b Upper bound of the interval.
+    !> @param tol Convergence tolerance.
+    !> @param imax Maximum number of iterations.
+    !> @param y Real function f(x).
+    !> @return Estimated root.
     !=================================================
     function pk_bisection_method(a, b, tol, imax, y) result(root)
         real(dp), intent(in) :: a, b, tol
@@ -336,12 +324,13 @@ contains
     end function pk_bisection_method
 
     !=================================================
-    ! Newton-Raphson method
-    !=================================================
-    ! x0: initial guess
-    ! tol: tolerance
-    ! imax: maximum iterations
-    ! root: output root of f
+    !> @brief Newton-Raphson method for root-finding.
+    !> @details Uses numerical derivative (central difference) if not provided.
+    !> @param x0 Initial guess.
+    !> @param tol Convergence tolerance.
+    !> @param imax Maximum number of iterations.
+    !> @param y Real function f(x).
+    !> @return Estimated root.
     !=================================================
     function pk_newton_raphson(x0, tol, imax, y) result(root)
         real(dp), intent(in) :: x0, tol
@@ -371,13 +360,14 @@ contains
     end function pk_newton_raphson
 
     !=================================================
-    ! Secant method
-    !=================================================
-    ! x0: first initial guess
-    ! x1: second initial guess
-    ! tol: tolerance
-    ! imax: maximum iterations
-    ! root: output root of f
+    !> @brief Secant method for root-finding.
+    !> @details Alternative to Newton-Raphson that doesn't requires an explicit derivative.
+    !> @param x0 First initial guess.
+    !> @param x1 Second initial guess.
+    !> @param tol Convergence tolerance.
+    !> @param imax Maximum number of iterations.
+    !> @param y Real function f(x).
+    !> @return Estimated root.
     !=================================================
     function pk_secant_method(x0, x1, tol, imax, y) result(root)
     real(dp), intent(in) :: x0, x1, tol
