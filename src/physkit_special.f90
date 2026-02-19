@@ -35,60 +35,83 @@ contains
     end function
 
     !=================================================
-    ! Gamma function
+    ! Gamma function (Lanczos)
     !=================================================
     ! z: input value
     ! gamma: output value
     !=================================================
     recursive function pk_gamma_real(z) result(gamma)
         real(dp), intent(in) :: z
-        real(dp) :: gamma
+        real(dp) :: gamma, A, t, zz
+        integer :: k
 
-        if (z < 1.0_dp) then
-            gamma = pk_gamma_real(z + 1.0_dp) / z
-        else
-            ! Integrate from epsilon to 1-epsilon to avoid singularities at endpoints
-            gamma = pk_adaptative_simpson(1.0e-12_dp, 1.0_dp - 1.0e-12_dp, 1.0e-8_dp, 0, 20, integrating)
+        real(dp), parameter :: g = 7.0_dp
+        real(dp), dimension(0:8), parameter :: c = (/ &
+                                                    0.99999999999980993_dp, &
+                                                    676.5203681218851_dp, &
+                                                    -1259.1392167224028_dp, &
+                                                    771.32342877765313_dp, &
+                                                    -176.61502916214059_dp, &
+                                                    12.507343278686905_dp, &
+                                                    -0.13857109526572012_dp, &
+                                                    9.9843695780195716e-6_dp, &
+                                                    1.5056327351493116e-7_dp /)
+
+        if (z < 0.5_dp) then
+            gamma = pi / (sin(pi*z) * pk_gamma_real(1.0_dp - z))
+            return
         end if
 
-    contains
+        zz = z - 1.0_dp
 
-        function integrating(t) result(f)
-            real(dp), intent(in) :: t
-            real(dp) :: f
-            
-            f = ((t**(z - 1.0_dp)) * exp(-t/(1.0_dp - t))) / ((1.0_dp - t)**(z + 1.0_dp))
-        end function integrating
+        A = c(0)
+        do k = 1, 8
+            A = A + c(k)/(zz + real(k, dp))
+        end do
+
+        t = zz + g + 0.5_dp
+
+        gamma = sqrt(2.0_dp*pi) * t**(zz + 0.5_dp) * exp(-t) * A
 
     end function pk_gamma_real
 
     !=================================================
-    ! Gamma function for complex numbers
+    ! Gamma function for complex numbers (Lanczos)
     !=================================================
     ! z: input value
     ! gamma: output value
     !=================================================
     recursive function pk_gamma(z) result(gamma)
         complex(dp), intent(in) :: z
-        complex(dp) :: gamma
+        complex(dp) :: zz, gamma, A, t
+        integer :: k
+        real(dp), parameter :: g = 7.0_dp
+        real(dp), dimension(0:8), parameter :: c = (/ &
+                                                    0.99999999999980993_dp, &
+                                                    676.5203681218851_dp, &
+                                                    -1259.1392167224028_dp, &
+                                                    771.32342877765313_dp, &
+                                                    -176.61502916214059_dp, &
+                                                    12.507343278686905_dp, &
+                                                    -0.13857109526572012_dp, &
+                                                    9.9843695780195716e-6_dp, &
+                                                    1.5056327351493116e-7_dp /)
 
-        if (real(z) < 1.0_dp) then
-            gamma = pk_gamma(z + 1.0_dp) / z
-        else
-            ! Integrate from epsilon to 1-epsilon along real axis
-             gamma = pk_adaptative_simpson_complex(cmplx(1.0e-12_dp, 0.0_dp, kind=dp), &
-                                                   cmplx(1.0_dp - 1.0e-12_dp, 0.0_dp, kind=dp), &
-                                                   1.0e-8_dp, 0, 20, integrating)
+        if (real(z) < 0.5_dp) then
+            gamma = pi / (sin(pi*z) * pk_gamma(1.0_dp - z))
+            return
         end if
 
-    contains
+        zz = z - 1.0_dp
 
-        function integrating(t) result(f)
-            complex(dp), intent(in) :: t
-            complex(dp) :: f
-            ! Integral_0^1 (log(1/t))^(z-1) dt
-            f = (log(1.0_dp/t))**(z - 1.0_dp)
-        end function integrating
+        A = c(0)
+        do k = 1, 8
+            A = A + c(k)/(zz + real(k, dp))
+        end do
+
+        t = zz + g + 0.5_dp
+
+        gamma = sqrt(2.0_dp*pi) * t**(zz + 0.5_dp) * exp(-t) * A
 
     end function pk_gamma
 
@@ -150,3 +173,36 @@ contains
 
 
 end module physkit_special
+
+
+! Obsolete functions
+
+    !=================================================
+    ! Gamma function
+    !=================================================
+    ! z: input value
+    ! gamma: output value
+    !=================================================
+    !recursive function pk_gamma_real(z) result(gamma)
+    !    real(dp), intent(in) :: z
+    !    real(dp) :: gamma
+!
+    !    if (z == 0.0_dp) then
+    !        gamma = 1.0_dp
+    !    else if (z < 1.0_dp) then
+    !        gamma = pk_gamma_real(z + 1.0_dp) / z
+    !    else
+    !        ! Integrate from epsilon to 1-epsilon to avoid singularities at endpoints
+    !        gamma = pk_adaptative_simpson(1.0e-12_dp, 1.0_dp - 1.0e-12_dp, 1.0e-8_dp, 0, 20, integrating)
+    !    end if
+!
+    !contains
+!
+    !    function integrating(t) result(f)
+    !        real(dp), intent(in) :: t
+    !        real(dp) :: f
+    !        
+    !        f = ((t**(z - 1.0_dp)) * exp(-t/(1.0_dp - t))) / ((1.0_dp - t)**(z + 1.0_dp))
+    !    end function integrating
+!
+    !end function pk_gamma_real

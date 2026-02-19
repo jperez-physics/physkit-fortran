@@ -2,7 +2,7 @@ module physkit_linalg
     use physkit_constants, only: dp
     implicit none
     private
-    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_zero_matrix, pk_identity_matrix, pk_trace
+    public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, pk_matrix_vector_product, pk_matrix_matrix_product, pk_hadamard_product, pk_zero_matrix, pk_identity_matrix, pk_trace
 
 contains
 
@@ -153,6 +153,36 @@ contains
     end subroutine pk_matrix_matrix_product
 
     !=================================================
+    ! Hadamard product
+    !=================================================
+    ! A: first matrix (2D array)
+    ! B: second matrix (2D array)
+    ! C: output matrix (2D array)
+    !=================================================
+    subroutine pk_hadamard_product(A, B, C)
+        real(dp), intent(in) :: A(:, :), B(:, :)
+        real(dp), intent(out) :: C(:, :)
+        integer :: i, j, N, M, P, Q
+
+        N = size(A, 1)
+        M = size(A, 2)
+        P = size(B, 1)
+        Q = size(B, 2)
+
+        if (P /= N .or. Q /= M) then
+            print*, "Error: incompatible matrix dimensions"
+            return
+        end if
+
+        do i = 1, N
+            do j = 1, M
+                C(i, j) = A(i, j) * B(i, j)
+            end do
+        end do
+
+    end subroutine pk_hadamard_product
+
+    !=================================================
     ! Zero Matrix
     !=================================================
     ! N: number of rows
@@ -221,5 +251,46 @@ contains
         end if
 
     end function pk_trace
+
+    !=================================================
+    ! LU Decomposition
+    !=================================================
+    ! A: matrix input
+    ! L: lower triangular matrix
+    ! U: upper triangular matrix
+    !=================================================
+    subroutine pk_lu_decomposition(A, L, U)
+        real(dp), intent(in) :: A(:, :)
+        real(dp), intent(out) :: L(:, :), U(:, :)
+        integer :: i, j, k, N, M
+
+        N = size(A, 1)
+        M = size(A, 2)
+
+        if (N /= M) then
+            print*, "Error: incompatible matrix dimensions"
+            return
+        end if
+
+        call pk_identity_matrix(N, L)
+        call pk_zero_matrix(N, M, U)
+
+    do i = 1, N
+        do j = i, N
+            sum = 0.0_dp
+            do k = 1, i - 1
+                sum = sum + L(i, k) * U(k, j)
+            end do
+            U(i, j) = A(i, j) - sum
+        end do
+
+        do j = i + 1, N
+            sum = 0.0_dp
+            do k = 1, i - 1
+                sum = sum + L(j, k) * U(k, i)
+            end do
+            L(j, i) = (A(j, i) - sum) / U(i, i)
+        end do
+    end do
 
 end module physkit_linalg

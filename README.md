@@ -30,6 +30,7 @@ This repository is intended to grow progressively as new numerical methods, phys
 ### Matrices
 - Matrix-vector multiplication 🟢
 - Matrix-matrix multiplication 🟢
+- Hadamard product 🟢
 - Zero matrix 🟢
 - Identity matrix 🟢
 - Determinant
