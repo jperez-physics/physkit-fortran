@@ -9,7 +9,12 @@ module physkit_special
     use physkit_constants, only: dp, pi
     implicit none
     private
-    public :: pk_factorial, pk_gamma_real, pk_gamma, pk_permutation, pk_combination
+    public :: pk_factorial, pk_gamma, pk_permutation, pk_combination
+
+    interface pk_gamma
+        module procedure pk_gamma_real
+        module procedure pk_gamma_complex
+    end interface
 
 contains
 
@@ -82,7 +87,7 @@ contains
     !> @param z Complex input value.
     !> @return Gamma(z).
     !=================================================
-    recursive function pk_gamma(z) result(gamma)
+    recursive function pk_gamma_complex(z) result(gamma)
         complex(dp), intent(in) :: z
         complex(dp) :: zz, gamma, A, t
         integer :: k
@@ -114,7 +119,7 @@ contains
 
         gamma = sqrt(2.0_dp*pi) * t**(zz + 0.5_dp) * exp(-t) * A
 
-    end function pk_gamma
+    end function pk_gamma_complex
 
     !=================================================
     !> @brief Beta function B(x, y).
@@ -169,6 +174,8 @@ contains
         combination = pk_factorial(n) / (pk_factorial(r) * pk_factorial(n - r))
 
     end function pk_combination
+
+    ! Bessel function
 
 
 end module physkit_special

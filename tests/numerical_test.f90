@@ -60,6 +60,20 @@ program numerical_test
         print *, "  FAILED"
     end if
 
+    ! Vector Central Difference
+    ! f(x) = [x^2, x^3], f'(x) = [2x, 3x^2] at x=2.0 -> [4.0, 12.0]
+    block
+        real(dp), dimension(:), allocatable :: res_vec, exp_vec
+        exp_vec = [4.0_dp, 12.0_dp]
+        res_vec = pk_central_difference(x, dx, f_vec_poly)
+        print *, "pk_central_difference (vector [x^2, x^3], x=2): ", res_vec, " Expected: ", exp_vec
+        if (all(abs(res_vec - exp_vec) < 1.0e-8_dp)) then
+            print *, "  PASSED"
+        else
+            print *, "  FAILED"
+        end if
+    end block
+
     !##################################################
     ! Integration Tests
     !##################################################
@@ -90,7 +104,7 @@ program numerical_test
     end if
 
     ! Simpson's Rule (Single interval)
-    result_real = pk_simpson(a, b, f_poly)
+    result_real = pk_composite_simpson(a, b, 2, f_poly)
     print *, "pk_simpson (x^2, 0-1): ", result_real
     if (abs(result_real - expected_real) < 1.0e-8_dp) then
         print *, "  PASSED"
@@ -116,15 +130,24 @@ program numerical_test
         print *, "  FAILED"
     end if
 
-    ! Complex Simpson's Rule
+    ! Complex Simpson's Rule (using composite with N=2)
     ! Integrate z from 0 to 1+i -> z^2/2 | 0 to 1+i = (1+i)^2/2 = (1 + 2i - 1)/2 = i
     ! Using f_linear_complex(z) = z
     z0 = (0.0_dp, 0.0_dp)
     z1 = (1.0_dp, 1.0_dp)
     expected_complex = (0.0_dp, 1.0_dp) 
     
-    result_complex = pk_simpson_complex(z0, z1, f_linear_complex)
-    print *, "pk_simpson_complex (z, 0 to 1+i): ", result_complex
+    result_complex = pk_composite_simpson(z0, z1, 2, f_linear_complex)
+    print *, "pk_composite_simpson (z, 0 to 1+i, N=2): ", result_complex
+    if (abs(result_complex - expected_complex) < 1.0e-6_dp) then
+        print *, "  PASSED"
+    else
+        print *, "  FAILED: Expected ", expected_complex, " Got ", result_complex
+    end if
+
+    ! Complex Composite Simpson's Rule (N=100)
+    result_complex = pk_composite_simpson(z0, z1, 100, f_linear_complex)
+    print *, "pk_composite_simpson (z, 0 to 1+i, N=100): ", result_complex
     if (abs(result_complex - expected_complex) < 1.0e-6_dp) then
         print *, "  PASSED"
     else
@@ -132,8 +155,8 @@ program numerical_test
     end if
 
     ! Adaptative Simpson's Complex
-    result_complex = pk_adaptative_simpson_complex(z0, z1, 1.0e-6_dp, 0, 20, f_linear_complex)
-    print *, "pk_adaptative_simpson_complex (z, 0 to 1+i): ", result_complex
+    result_complex = pk_adaptative_simpson(z0, z1, 1.0e-6_dp, 0, 20, f_linear_complex)
+    print *, "pk_adaptative_simpson (z, 0 to 1+i): ", result_complex
     if (abs(result_complex - expected_complex) < 1.0e-6_dp) then
         print *, "  PASSED"
     else
@@ -196,6 +219,14 @@ contains
         real(dp) :: y
         y = x**2 - 4.0_dp
     end function f_root
+
+    function f_vec_poly(x) result(y)
+        real(dp), intent(in) :: x
+        real(dp), dimension(:), allocatable :: y
+        allocate(y(2))
+        y(1) = x**2
+        y(2) = x**3
+    end function f_vec_poly
 
     !-------------------------------------------------------------------------
     ! Complex Functions

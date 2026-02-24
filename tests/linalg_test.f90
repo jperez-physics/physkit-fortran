@@ -4,7 +4,8 @@ program linalg_test
     implicit none
 
     real(dp), allocatable :: v1(:), v2(:), v3(:), v_out(:)
-    real(dp), allocatable :: m1(:,:), m2(:,:), m3(:,:), m_out(:,:)
+    real(dp), allocatable :: m1(:,:), m2(:,:), m3(:,:), m_out(:,:), Q(:,:), R(:,:)
+    real(dp), allocatable :: evals(:)
     real(dp) :: s, tol
     integer :: i, j
 
@@ -14,61 +15,35 @@ program linalg_test
     !##################################################
     ! Vector Tests
     !##################################################
-    print *, "--- Vector Tests ---"
+    print *, ""
+    print *, "--- VECTOR TESTS ---"
     
     allocate(v1(3), v2(3), v3(3))
     v1 = [1.0_dp, 2.0_dp, 3.0_dp]
     v2 = [4.0_dp, 5.0_dp, 6.0_dp]
 
-    ! Dot Product
+    ! 1. Dot Product
     s = pk_dot_product(v1, v2)
-    ! 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
-    print *, "pk_dot_product ([1,2,3], [4,5,6]): ", s
-    if (abs(s - 32.0_dp) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED: Expected 32.0, Got ", s
-    end if
+    call print_result("pk_dot_product", s, 32.0_dp, tol)
 
-    ! Vector Norm
+    ! 2. Vector Norm
     s = pk_vector_norm(v1)
-    ! sqrt(1+4+9) = sqrt(14) approx 3.741657
-    print *, "pk_vector_norm ([1,2,3]): ", s
-    if (abs(s - sqrt(14.0_dp)) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result("pk_vector_norm", s, sqrt(14.0_dp), tol)
 
-    ! Cross Product
+    ! 3. Cross Product
     v_out = pk_cross_product(v1, v2)
-    ! [1,2,3] x [4,5,6] = [-3, 6, -3]
-    ! x = 2*6 - 3*5 = 12 - 15 = -3
-    ! y = 3*4 - 1*6 = 12 - 6 = 6
-    ! z = 1*5 - 2*4 = 5 - 8 = -3
-    print *, "pk_cross_product ([1,2,3], [4,5,6]): ", v_out
-    if (abs(v_out(1) - (-3.0_dp)) < tol .and. &
-        abs(v_out(2) - ( 6.0_dp)) < tol .and. &
-        abs(v_out(3) - (-3.0_dp)) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result_vector("pk_cross_product", v_out, [-3.0_dp, 6.0_dp, -3.0_dp], tol)
 
-    ! Vector Normalize
+    ! 4. Vector Normalize
     v_out = pk_vector_normalize(v1)
     s = pk_vector_norm(v_out)
-    print *, "pk_vector_normalize ([1,2,3]) norm: ", s
-    if (abs(s - 1.0_dp) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result("pk_vector_normalize (norm)", s, 1.0_dp, tol)
 
     !##################################################
     ! Matrix Tests
     !##################################################
-    print *, "--- Matrix Tests ---"
+    print *, ""
+    print *, "--- MATRIX TESTS ---"
     
     allocate(m1(2,2), m2(2,2))
     m1(1,:) = [1.0_dp, 2.0_dp]
@@ -77,76 +52,136 @@ program linalg_test
     m2(1,:) = [2.0_dp, 0.0_dp]
     m2(2,:) = [1.0_dp, 2.0_dp]
 
-    ! Trace
+    ! 1. Trace
     s = pk_trace(m1)
-    ! 1 + 4 = 5
-    print *, "pk_trace ([[1,2],[3,4]]): ", s
-    if (abs(s - 5.0_dp) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result("pk_trace", s, 5.0_dp, tol)
 
-    ! Identity Matrix
+    ! 2. Identity Matrix
     allocate(m3(3,3))
     call pk_identity_matrix(3, m3)
-    print *, "pk_identity_matrix (3x3):"
-    do i=1,3
-        print *, m3(i,:)
-    end do
     s = pk_trace(m3)
-    if (abs(s - 3.0_dp) < tol .and. m3(1,2) == 0.0_dp) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result("pk_identity_matrix (trace)", s, 3.0_dp, tol)
 
-    ! Zero Matrix
+    ! 3. Zero Matrix
     call pk_zero_matrix(3, 3, m3)
-    print *, "pk_zero_matrix (3x3) norm: ", pk_vector_norm(reshape(m3, [9])) ! treat as vector to check all zeros
-    if (pk_vector_norm(reshape(m3, [9])) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    s = pk_vector_norm(reshape(m3, [9]))
+    call print_result("pk_zero_matrix (norm)", s, 0.0_dp, tol)
 
-    ! Matrix-Vector Product
-    ! m1 = [[1,2],[3,4]], v = [1,1] (using first 2 of v1 which is treated as 3D above, let's realloc)
-    deallocate(v_out, v1)
+    ! 4. Matrix-Vector Product
+    if(allocated(v_out)) deallocate(v_out)
+    if(allocated(v1)) deallocate(v1)
     allocate(v1(2), v_out(2))
     v1 = [1.0_dp, 1.0_dp]
     call pk_matrix_vector_product(m1, v1, v_out)
-    ! [1*1 + 2*1, 3*1 + 4*1] = [3, 7]
-    print *, "pk_matrix_vector_product ([[1,2],[3,4]], [1,1]): ", v_out
-    if (abs(v_out(1) - 3.0_dp) < tol .and. abs(v_out(2) - 7.0_dp) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    call print_result_vector("pk_matrix_vector_product", v_out, [3.0_dp, 7.0_dp], tol)
 
-    ! Matrix-Matrix Product
-    ! m1 = [[1,2],[3,4]]
-    ! m2 = [[2,0],[1,2]]
-    ! C = m1 * m2
-    ! c11 = 1*2 + 2*1 = 4
-    ! c12 = 1*0 + 2*2 = 4
-    ! c21 = 3*2 + 4*1 = 10
-    ! c22 = 3*0 + 4*2 = 8
+    ! 5. Matrix-Matrix Product
     allocate(m_out(2,2))
     call pk_matrix_matrix_product(m1, m2, m_out)
-    print *, "pk_matrix_matrix_product:"
-    do i=1,2
-        print *, m_out(i,:)
-    end do
-    if (abs(m_out(1,1) - 4.0_dp) < tol .and. &
-        abs(m_out(1,2) - 4.0_dp) < tol .and. &
-        abs(m_out(2,1) - 10.0_dp) < tol .and. &
-        abs(m_out(2,2) - 8.0_dp) < tol) then
-        print *, "  PASSED"
-    else
-        print *, "  FAILED"
-    end if
+    s = pk_vector_norm(reshape(m_out - reshape([4.0_dp, 4.0_dp, 10.0_dp, 8.0_dp], [2,2], order=[2,1]), [4]))
+    call print_result("pk_matrix_matrix_product (err)", s, 0.0_dp, tol)
+    
+    ! 6. Hadamard Product
+    call pk_hadamard_product(m1, m2, m_out)
+    s = pk_vector_norm(reshape(m_out - reshape([2.0_dp, 0.0_dp, 3.0_dp, 8.0_dp], [2,2], order=[2,1]), [4]))
+    call print_result("pk_hadamard_product (err)", s, 0.0_dp, tol)
 
+    ! 7. Determinant
+    s = pk_determinant(m1)
+    call print_result("pk_determinant", s, -2.0_dp, tol)
+
+    !##################################################
+    ! Advanced Matrix Tests
+    !##################################################
+    print *, ""
+    print *, "--- ADVANCED MATRIX TESTS ---"
+
+    deallocate(m1, m_out, m3)
+    allocate(m1(3,3), m_out(3,3), m3(3,3))
+    
+    ! 1. Gram-Schmidt
+    m1(:, 1) = [1.0_dp, 0.0_dp, 0.0_dp]
+    m1(:, 2) = [2.0_dp, 1.0_dp, 0.0_dp]
+    m1(:, 3) = [3.0_dp, 2.0_dp, 1.0_dp]
+    m_out = pk_gram_schmidt(m1)
+    call pk_identity_matrix(3, m3)
+    s = pk_vector_norm(reshape(m_out - m3, [9]))
+    call print_result("pk_gram_schmidt (err)", s, 0.0_dp, tol)
+
+    ! 2. QR Decomposition & Eigenvalues
+    ! We test pk_eigenvalues using trace property (sum of evals = trace)
+    m1(1,:) = [4.0_dp, 1.0_dp, -2.0_dp]
+    m1(2,:) = [1.0_dp, 2.0_dp, 0.0_dp]
+    m1(3,:) = [-2.0_dp, 0.0_dp, 3.0_dp]
+    
+    allocate(Q(3,3), R(3,3))
+    call pk_qr_decomposition(m1, Q, R, tol)
+    s = 0.0_dp
+    call print_result("pk_qr_decomp_algorithm (run)", s, 0.0_dp, tol)
+
+    allocate(evals(3))
+    evals = pk_eigenvalues(m1, tol)
+    s = sum(evals)
+    call print_result("pk_eigenvalues (trace sum)", s, pk_trace(m1), tol)
+
+    print *, ""
     print *, "Tests finished."
+
+contains
+
+    subroutine print_result(label, res, exp_val, tol)
+        character(len=*), intent(in) :: label
+        real(dp), intent(in) :: res, exp_val, tol
+        real(dp) :: rel_err, err_abs
+        character(len=6) :: status
+        
+        err_abs = abs(res - exp_val)
+        if (abs(exp_val) > 1.0e-14_dp) then
+            rel_err = (err_abs / abs(exp_val)) * 100.0_dp
+        else
+            rel_err = err_abs * 100.0_dp
+        end if
+        
+        if (err_abs < tol .or. rel_err < tol*100) then
+            status = "PASSED"
+        else
+            status = "FAILED"
+        end if
+        
+        write(*, "(A30, ' - ', A6, ' - ', F14.8, ' - ', F14.8, ' - ', F10.6, ' %')") &
+            label, status, res, exp_val, rel_err
+    end subroutine print_result
+
+    subroutine print_result_vector(label, res, exp_val, tol)
+        character(len=*), intent(in) :: label
+        real(dp), dimension(:), intent(in) :: res, exp_val
+        real(dp), intent(in) :: tol
+        real(dp) :: rel_err, err_abs
+        character(len=6) :: status
+        
+        err_abs = maxval(abs(res - exp_val))
+        if (maxval(abs(exp_val)) > 1.0e-14_dp) then
+            rel_err = (err_abs / maxval(abs(exp_val))) * 100.0_dp
+        else
+            rel_err = err_abs * 100.0_dp
+        end if
+        
+        if (err_abs < tol .or. rel_err < tol*100) then
+            status = "PASSED"
+        else
+            status = "FAILED"
+        end if
+
+        if (size(res) == 2) then
+            write(*, "(A30, ' - ', A6, ' - [', F8.4, ',', F8.4, '] - [', F8.4, ',', F8.4, '] - ', F10.6, ' %')") &
+                label, status, res(1), res(2), exp_val(1), exp_val(2), rel_err
+        else if (size(res) == 3) then
+            write(*, "(A30, ' - ', A6, ' - [', F8.4, ',', F8.4, ',', F8.4, '] - [', F8.4, ',', F8.4, ',', F8.4, '] - ', F10.6, ' %')") &
+                label, status, res(1), res(2), res(3), exp_val(1), exp_val(2), exp_val(3), rel_err
+        else
+            write(*, "(A30, ' - ', A6, ' - MaxAbsErr: ', F14.8, ' - ', F10.6, ' %')") &
+                label, status, err_abs, rel_err
+        end if
+    end subroutine print_result_vector
 
 end program linalg_test

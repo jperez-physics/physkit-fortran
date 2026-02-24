@@ -4,13 +4,15 @@
 !>          matrix multiplications, products, and decompositions.
 module physkit_linalg
     use physkit_constants, only: dp
+    use physkit_numerical, only: pk_sum
     implicit none
     private
 
     ! Public methods
     public :: pk_dot_product, pk_vector_norm, pk_cross_product, pk_vector_normalize, &
               pk_matrix_vector_product, pk_matrix_matrix_product, pk_hadamard_product, &
-              pk_zero_matrix, pk_identity_matrix, pk_trace
+              pk_zero_matrix, pk_identity_matrix, pk_trace, pk_determinant, pk_gram_schmidt, &
+              pk_qr_decomposition, pk_eigenvalues
 
 contains
 
@@ -259,6 +261,7 @@ contains
     subroutine pk_lu_decomposition(A, L, U)
         real(dp), intent(in) :: A(:, :)
         real(dp), intent(out) :: L(:, :), U(:, :)
+        real(dp) :: sum
         integer :: i, j, k, N, M
 
         N = size(A, 1)
@@ -272,22 +275,137 @@ contains
         call pk_identity_matrix(N, L)
         call pk_zero_matrix(N, M, U)
 
-    do i = 1, N
-        do j = i, N
-            sum = 0.0_dp
-            do k = 1, i - 1
-                sum = sum + L(i, k) * U(k, j)
+        do i = 1, N
+            do j = i, N
+                sum = 0.0_dp
+                do k = 1, i - 1
+                    sum = sum + L(i, k) * U(k, j)
+                end do
+                U(i, j) = A(i, j) - sum
             end do
-            U(i, j) = A(i, j) - sum
+
+            do j = i + 1, N
+                sum = 0.0_dp
+                do k = 1, i - 1
+                    sum = sum + L(j, k) * U(k, i)
+                end do
+                L(j, i) = (A(j, i) - sum) / U(i, i)
+            end do
         end do
 
-        do j = i + 1, N
-            sum = 0.0_dp
-            do k = 1, i - 1
-                sum = sum + L(j, k) * U(k, i)
-            end do
-            L(j, i) = (A(j, i) - sum) / U(i, i)
+    end subroutine pk_lu_decomposition
+
+    !=================================================
+    !> @brief Computes the determinant of a square matrix using LU decomposition.
+    !> @param A Input square matrix.
+    !> @return Determinant of A.
+    !=================================================
+    function pk_determinant(A) result(detA)
+        real(dp), intent(in) :: A(:, :)
+        real(dp) :: detA
+        real(dp), allocatable :: L(:, :), U(:, :)
+        real(dp) :: detU
+        integer :: i, n
+
+        n = size(A, 1)
+
+        if (n /= size(A, 2)) then
+            print*, "Error: matrix must be square to compute determinant"
+            detA = 0.0_dp
+            return
+        end if
+
+        allocate(L(n, n), U(n, n))
+        call pk_lu_decomposition(A, L, U)
+
+        detU = 1.0_dp
+        do i = 1, n
+            detU = detU * U(i, i)
         end do
-    end do
+        detA = detU
+
+        deallocate(L, U)
+
+    end function pk_determinant
+
+    !=================================================
+    !> @brief Performs Gram-Schmidt orthogonalization on a set of vectors.
+    !> @param v Matrix whose columns are the input vectors.
+    !> @return Matrix whose columns are the orthogonalized vectors.
+    !=================================================
+    function pk_gram_schmidt(v) result(u)
+        real(dp), intent(in) :: v(:, :)
+        real(dp) :: u(size(v, 1), size(v, 2))
+        real(dp) :: proy(size(v, 1)) 
+        real(dp) :: scalar
+        integer :: j, k, num_vecs
+
+        num_vecs = size(v, 2)
+        
+        if (num_vecs > 0) then
+            u(:, 1) = v(:, 1)
+        end if
+
+        do k = 2, num_vecs
+            u(:, k) = v(:, k)
+            do j = 1, k - 1
+                scalar = pk_dot_product(v(:, k), u(:, j)) / pk_dot_product(u(:, j), u(:, j))
+                proy = scalar * u(:, j)
+                u(:, k) = u(:, k) - proy
+            end do
+        end do
+
+    end function pk_gram_schmidt
+
+    subroutine pk_qr_decomposition(A, Q, R, tol)
+        real(dp), intent(in) :: A(:, :)
+        real(dp), intent(out) :: Q(:, :), R(:, :)
+        real(dp), intent(in) :: tol
+        real(dp) :: q_temp(size(A, 1), size(A, 2)), sub_diag(size(A, 1))
+        real(dp) :: A_k(size(A, 1), size(A, 2))
+        real(dp) :: Qt(size(A, 2), size(A, 1))
+        integer :: N, M
+        integer :: i, j
+
+        Q = 0.0_dp
+        R = 0.0_dp
+        N = size(A, 1)
+        M = size(A, 2)
+        A_k = A
+        sub_diag = tol + 1.0_dp ! To start the loop
+
+        do while (maxval(abs(sub_diag)) > tol)
+            q_temp = pk_gram_schmidt(A_k)
+            do j = 1, M 
+                Q(:, j) = q_temp(:, j) / pk_vector_norm(q_temp(:, j))
+            end do
+
+            Qt = transpose(Q)
+            call pk_matrix_matrix_product(Qt, A_k, R)
+            call pk_matrix_matrix_product(R, Q, A_k)
+
+            sub_diag = 0.0_dp
+            do i = 1, N - 1
+                sub_diag(i) = A_k(i+1, i)
+            end do
+        end do
+
+    end subroutine pk_qr_decomposition
+
+    function pk_eigenvalues(A, tol) result(lambda)
+        real(dp), intent(in) :: A(:, :)
+        real(dp), intent(in) :: tol
+        real(dp) :: Q(size(A, 1), size(A, 2)), R(size(A, 1), size(A, 2))
+        real(dp) :: A_converged(size(A, 1), size(A, 2))
+        real(dp) :: lambda(size(A, 1))
+        integer :: i
+
+        call pk_qr_decomposition(A, Q, R, tol)
+        call pk_matrix_matrix_product(R, Q, A_converged)
+        do i = 1, size(A, 1)
+            lambda(i) = A_converged(i, i)
+        end do
+    end function pk_eigenvalues
+
 
 end module physkit_linalg

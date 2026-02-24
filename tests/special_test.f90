@@ -15,30 +15,30 @@ program special_test
     !##################################################
     print *, "--- Gamma Function Tests ---"
 
-    ! Test 1: pk_gamma_real(1.0) = 1.0
-    result_real = pk_gamma_real(1.0_dp)
+    ! Test 1: pk_gamma(1.0) = 1.0
+    result_real = pk_gamma(1.0_dp)
     expected_real = 1.0_dp
-    print *, "pk_gamma_real(1.0): ", result_real, " Expected: ", expected_real
+    print *, "pk_gamma(1.0): ", result_real, " Expected: ", expected_real
     if (abs(result_real - expected_real) < tol) then
         print *, "  PASSED"
     else
         print *, "  FAILED"
     end if
 
-    ! Test 2: pk_gamma_real(2.0) = 1.0
-    result_real = pk_gamma_real(2.0_dp)
+    ! Test 2: pk_gamma(2.0) = 1.0
+    result_real = pk_gamma(2.0_dp)
     expected_real = 1.0_dp
-    print *, "pk_gamma_real(2.0): ", result_real, " Expected: ", expected_real
+    print *, "pk_gamma(2.0): ", result_real, " Expected: ", expected_real
     if (abs(result_real - expected_real) < tol) then
         print *, "  PASSED"
     else
         print *, "  FAILED"
     end if
 
-    ! Test 3: pk_gamma_real(0.5) = sqrt(pi)
-    result_real = pk_gamma_real(0.5_dp)
+    ! Test 3: pk_gamma(0.5) = sqrt(pi)
+    result_real = pk_gamma(0.5_dp)
     expected_real = sqrt(pi)
-    print *, "pk_gamma_real(0.5): ", result_real, " Expected: ", expected_real
+    print *, "pk_gamma(0.5): ", result_real, " Expected: ", expected_real
     if (abs(result_real - expected_real) < tol) then
         print *, "  PASSED"
     else
