@@ -122,8 +122,8 @@ program numerical_test
     end if
 
     ! Adaptive Simpson's Rule
-    result_real = pk_adaptative_simpson(a, b, 1.0e-6_dp, 0, 20, f_poly)
-    print *, "pk_adaptative_simpson (x^2, 0-1): ", result_real
+    result_real = pk_adaptive_simpson(a, b, 1.0e-6_dp, 0, 20, f_poly)
+    print *, "pk_adaptive_simpson (x^2, 0-1): ", result_real
     if (abs(result_real - expected_real) < 1.0e-6_dp) then
         print *, "  PASSED"
     else
@@ -155,8 +155,8 @@ program numerical_test
     end if
 
     ! Adaptative Simpson's Complex
-    result_complex = pk_adaptative_simpson(z0, z1, 1.0e-6_dp, 0, 20, f_linear_complex)
-    print *, "pk_adaptative_simpson (z, 0 to 1+i): ", result_complex
+    result_complex = pk_adaptive_simpson(z0, z1, 1.0e-6_dp, 0, 20, f_linear_complex)
+    print *, "pk_adaptive_simpson (z, 0 to 1+i): ", result_complex
     if (abs(result_complex - expected_complex) < 1.0e-6_dp) then
         print *, "  PASSED"
     else

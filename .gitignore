@@ -1,0 +1,17 @@
+# fpm build artifacts
+/build/
+/mod/
+
+# Compiled Fortran artifacts (in case of manual gfortran builds)
+*.o
+*.mod
+*.exe
+*.smod
+
+# Generated data/plots from running examples
+*.dat
+*.png
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db

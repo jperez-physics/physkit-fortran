@@ -115,9 +115,10 @@ program linalg_test
     m1(3,:) = [-2.0_dp, 0.0_dp, 3.0_dp]
     
     allocate(Q(3,3), R(3,3))
-    call pk_qr_decomposition(m1, Q, R, tol)
-    s = 0.0_dp
-    call print_result("pk_qr_decomp_algorithm (run)", s, 0.0_dp, tol)
+    call pk_qr_decomposition(m1, Q, R)
+    call pk_matrix_matrix_product(Q, R, m_out)
+    s = pk_vector_norm(reshape(m_out - m1, [9]))
+    call print_result("pk_qr_decomposition (A=QR err)", s, 0.0_dp, tol)
 
     allocate(evals(3))
     evals = pk_eigenvalues(m1, tol)

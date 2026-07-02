@@ -17,7 +17,17 @@ This repository is intended to grow progressively as new numerical methods, phys
 
 ## Examples
 
-![Damped Oscillator Plots](examples/damped_oscillator/damped_oscillator_plots.png)
+![Damped Oscillator Plots](example/damped_oscillator/damped_oscillator_plots.png)
+
+## Build
+
+This project uses [fpm](https://fpm.fortran-lang.org/) (Fortran Package Manager).
+
+```bash
+fpm build       # build the library
+fpm test        # run all tests in test/
+fpm run --example <name>   # run an example (damped_oscillator, gamma_function)
+```
 
 
 ## Latest Features

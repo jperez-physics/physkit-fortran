@@ -2,8 +2,17 @@
 !> @brief Module for numerical integration of Ordinary Differential Equations (ODEs).
 !> @details Provides implementations of classic methods such as Euler, 2nd and 4th order Runge-Kutta,
 !>          and the Velocity Verlet method for second-order equations.
+!>
+!>          Error handling convention: procedures that can fail accept an
+!>          optional `integer, intent(out) :: ierr` argument (last in the
+!>          list). If the caller passes `ierr`, the procedure reports errors
+!>          through it (see pk_success / pk_err_* in physkit_constants) and
+!>          returns a well-defined "safe" result instead of leaving output
+!>          arguments undefined. If the caller omits `ierr`, the procedure
+!>          falls back to `error stop` with a descriptive message, matching
+!>          the library's original fail-fast behavior.
 module physkit_ode
-    use physkit_constants, only: dp
+    use physkit_constants, only: dp, pk_success, pk_err_invalid_argument
     implicit none
     private
 
@@ -61,15 +70,28 @@ contains
     !> @param y_init Initial condition y(x0).
     !> @param y_out Integration result y(x1).
     !> @param f_ode Function defining the derivative dy/dx = f(x, y).
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
     !=================================================
-    subroutine pk_euler_method_scalar(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_euler_method_scalar(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, y_init, x0, x1
         real(dp), intent(out) :: y_out
         procedure(f) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp) :: y, x
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_euler_method: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -84,17 +106,28 @@ contains
     end subroutine pk_euler_method_scalar
 
     !
-    subroutine pk_euler_method_system(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_euler_method_system(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, x0, x1
         real(dp), dimension(:), intent(in) :: y_init
         real(dp), dimension(:), intent(out) :: y_out
         procedure(f_system) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp), dimension(size(y_init)) :: y
         real(dp) :: x
         integer :: j, N
-        
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_euler_method: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -116,15 +149,28 @@ contains
     !> @param y_init Initial condition y(x0).
     !> @param y_out Integration result y(x1).
     !> @param f_ode Function defining the derivative dy/dx = f(x, y).
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
     !=================================================
-    subroutine pk_rk2_scalar(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_rk2_scalar(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, y_init, x0, x1
         real(dp), intent(out) :: y_out
         procedure(f) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp) :: y, x, k1, k2
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_rk2: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -141,17 +187,28 @@ contains
     end subroutine pk_rk2_scalar
 
     !
-    subroutine pk_rk2_system(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_rk2_system(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in) :: dx, x0, x1
         real(dp), dimension(:), intent(in) :: y_init
         real(dp), dimension(:), intent(out) :: y_out
         procedure(f_system) :: f_ode
-        
+        integer, intent(out), optional :: ierr
+
         real(dp), dimension(size(y_init)) :: y, k1, k2
         real(dp) :: x
         integer :: j, N
 
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_rk2: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -175,15 +232,28 @@ contains
     !> @param y_init Initial condition y(x0).
     !> @param y_out Integration result y(x1).
     !> @param f_ode Function defining the derivative dy/dx = f(x, y).
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
     !=================================================
-    subroutine pk_rk4_scalar(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_rk4_scalar(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, y_init, x0, x1
         real(dp), intent(out) :: y_out
         procedure(f) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp) :: y, x, k1, k2, k3, k4
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_rk4: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -202,17 +272,28 @@ contains
     end subroutine pk_rk4_scalar
 
     !
-    subroutine pk_rk4_system(dx, x0, x1, y_init, y_out, f_ode)
+    subroutine pk_rk4_system(dx, x0, x1, y_init, y_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, x0, x1
         real(dp), dimension(:), intent(in) :: y_init
         real(dp), dimension(:), intent(out) :: y_out
         procedure(f_system) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp), dimension(size(y_init)) :: y, k1, k2, k3, k4
         real(dp) :: x
         integer :: j, N
 
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                return
+            else
+                error stop "physkit_ode: pk_rk4: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         x = x0
@@ -241,16 +322,30 @@ contains
     !> @param y_out Final position y(x1).
     !> @param v_out Final velocity v(x1).
     !> @param f_ode Function that calculates the acceleration a(x, y) = d2y/dx2.
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
     ! NOTE: Here 'f_ode(x,y)' must return the acceleration (second order)
     !=================================================
-    subroutine pk_velocity_verlet_scalar(dx, x0, x1, y_init, v_init, y_out, v_out, f_ode)
+    subroutine pk_velocity_verlet_scalar(dx, x0, x1, y_init, v_init, y_out, v_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, y_init, v_init, x0, x1
         real(dp), intent(out) :: y_out, v_out
         procedure(f) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp) :: y, v, x, a_now, a_new
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                v_out = v_init
+                return
+            else
+                error stop "physkit_ode: pk_velocity_verlet: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         v = v_init
@@ -270,16 +365,29 @@ contains
     end subroutine pk_velocity_verlet_scalar
 
     !
-    subroutine pk_velocity_verlet_system(dx, x0, x1, y_init, v_init, y_out, v_out, f_ode)
+    subroutine pk_velocity_verlet_system(dx, x0, x1, y_init, v_init, y_out, v_out, f_ode, ierr)
         real(dp), intent(in)  :: dx, x0, x1
         real(dp), dimension(:), intent(in) :: y_init, v_init
         real(dp), dimension(:), intent(out) :: y_out, v_out
         procedure(f_system) :: f_ode
+        integer, intent(out), optional :: ierr
 
         real(dp), dimension(size(y_init)) :: y, v, a_now, a_new
         real(dp) :: x
         integer :: j, N
-        if (dx == 0.0_dp) stop "Error: dx cannot be zero"
+
+        if (present(ierr)) ierr = pk_success
+        if (dx == 0.0_dp) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                y_out = y_init
+                v_out = v_init
+                return
+            else
+                error stop "physkit_ode: pk_velocity_verlet: dx cannot be zero"
+            end if
+        end if
+
         N = nint((x1 - x0) / dx)
         y = y_init
         v = v_init

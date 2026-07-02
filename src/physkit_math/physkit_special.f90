@@ -6,10 +6,10 @@ module physkit_special
     use physkit_numerical
     use physkit_ode
     use physkit_linalg
-    use physkit_constants, only: dp, pi
+    use physkit_constants, only: dp, pi, pk_success, pk_err_invalid_argument
     implicit none
     private
-    public :: pk_factorial, pk_gamma, pk_permutation, pk_combination
+    public :: pk_factorial, pk_gamma, pk_beta, pk_permutation, pk_combination
 
     interface pk_gamma
         module procedure pk_gamma_real
@@ -21,16 +21,24 @@ contains
     !=================================================
     !> @brief Computes the factorial of a non-negative integer n!
     !> @param n Non-negative integer.
-    !> @return Factorial of n. Returns -1 on error (n < 0).
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
+    !> @return Factorial of n (-1 on error).
     !=================================================
-    function pk_factorial(n) result(factorial)
+    function pk_factorial(n, ierr) result(factorial)
     integer, intent(in) :: n
+    integer, intent(out), optional :: ierr
     integer :: factorial, i
 
+    if (present(ierr)) ierr = pk_success
+
     if (n < 0) then
-        print*, 'Error: n must be postive or zero'
-        factorial = -1
-        return
+        if (present(ierr)) then
+            ierr = pk_err_invalid_argument
+            factorial = -1
+            return
+        else
+            error stop "physkit_special: pk_factorial: n must be positive or zero"
+        end if
     else if (n == 0) then
         factorial = 1
     else
@@ -38,7 +46,7 @@ contains
         do i = 1, n
         factorial = factorial * i
         end do
-    end if 
+    end if
 
     end function
 
@@ -139,16 +147,24 @@ contains
     !> @brief Calculates the number of permutations P(n, r).
     !> @param n Total number of items.
     !> @param r Number of items to choose.
-    !> @return Number of permutations. Returns -1 on invalid input.
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
+    !> @return Number of permutations (-1 on invalid input).
     !=================================================
-    function pk_permutation(n, r) result(permutation)
+    function pk_permutation(n, r, ierr) result(permutation)
         integer, intent(in) :: n, r
+        integer, intent(out), optional :: ierr
         integer :: permutation
 
+        if (present(ierr)) ierr = pk_success
+
         if (n < 0 .or. r < 0 .or. r > n) then
-            print*, 'Error: n and r must be non-negative and r must be less than or equal to n'
-            permutation = -1
-            return
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                permutation = -1
+                return
+            else
+                error stop "physkit_special: pk_permutation: n and r must be non-negative and r <= n"
+            end if
         end if
 
         permutation = pk_factorial(n) / pk_factorial(n - r)
@@ -159,16 +175,24 @@ contains
     !> @brief Calculates the number of combinations C(n, r).
     !> @param n Total number of items.
     !> @param r Number of items to choose.
-    !> @return Number of combinations. Returns -1 on invalid input.
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
+    !> @return Number of combinations (-1 on invalid input).
     !=================================================
-    function pk_combination(n, r) result(combination)
+    function pk_combination(n, r, ierr) result(combination)
         integer, intent(in) :: n, r
+        integer, intent(out), optional :: ierr
         integer :: combination
 
+        if (present(ierr)) ierr = pk_success
+
         if (n < 0 .or. r < 0 .or. r > n) then
-            print*, 'Error: n and r must be non-negative and r must be less than or equal to n'
-            combination = -1
-            return
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                combination = -1
+                return
+            else
+                error stop "physkit_special: pk_combination: n and r must be non-negative and r <= n"
+            end if
         end if
 
         combination = pk_factorial(n) / (pk_factorial(r) * pk_factorial(n - r))
@@ -199,7 +223,7 @@ end module physkit_special
     !        gamma = pk_gamma_real(z + 1.0_dp) / z
     !    else
     !        ! Integrate from epsilon to 1-epsilon to avoid singularities at endpoints
-    !        gamma = pk_adaptative_simpson(1.0e-12_dp, 1.0_dp - 1.0e-12_dp, 1.0e-8_dp, 0, 20, integrating)
+    !        gamma = pk_adaptive_simpson(1.0e-12_dp, 1.0_dp - 1.0e-12_dp, 1.0e-8_dp, 0, 20, integrating)
     !    end if
 !
     !contains

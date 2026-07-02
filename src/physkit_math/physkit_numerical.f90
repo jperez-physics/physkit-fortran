@@ -3,7 +3,7 @@
 !> @details Implementation of common numerical algorithms for real and complex functions,
 !>          providing tools for calculus and solving non-linear equations.
 module physkit_numerical
-    use physkit_constants, only: dp
+    use physkit_constants, only: dp, pk_success, pk_err_invalid_argument, pk_err_singular, pk_err_no_convergence
     implicit none
     private
 
@@ -11,7 +11,7 @@ module physkit_numerical
     public :: pk_sum, &
               pk_forward_difference, pk_backward_difference, pk_central_difference, pk_second_central_difference, &
               pk_rectangular_rule, pk_trapezoidal_rule, pk_composite_simpson, &
-              pk_adaptative_simpson, &
+              pk_adaptive_simpson, &
               pk_bisection_method, pk_newton_raphson, pk_secant_method
 
     interface pk_sum
@@ -47,9 +47,9 @@ module physkit_numerical
         module procedure pk_composite_simpson_complex
     end interface
 
-    interface pk_adaptative_simpson
-        module procedure pk_adaptative_simpson_real
-        module procedure pk_adaptative_simpson_complex
+    interface pk_adaptive_simpson
+        module procedure pk_adaptive_simpson_real
+        module procedure pk_adaptive_simpson_complex
     end interface
 
     ! Abstract interfaces for user-defined functions
@@ -397,17 +397,28 @@ contains
     !> @param x1 Upper integration limit.
     !> @param N Number of sub-intervals (must be even).
     !> @param y Real function f(x).
-    !> @return Numerical integral of f from x0 to x1.
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
+    !> @return Numerical integral of f from x0 to x1 (0.0 on error).
     !=================================================
-    function pk_composite_simpson_real(x0, x1, N, y) result(Integral)
+    function pk_composite_simpson_real(x0, x1, N, y, ierr) result(Integral)
         real(dp), intent(in) :: x0, x1
         real(dp) :: dx, Integral
         integer, intent(in) :: N
+        integer, intent(out), optional :: ierr
         integer :: i
         procedure(f) :: y
-        
-        if (N <= 0) stop "Error: N must be positive"
-        if (mod(N, 2) /= 0) stop "Error: N must be even for Simpson's rule"
+
+        if (present(ierr)) ierr = pk_success
+
+        if (N <= 0 .or. mod(N, 2) /= 0) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                Integral = 0.0_dp
+                return
+            else
+                error stop "physkit_numerical: pk_composite_simpson: N must be a positive even integer"
+            end if
+        end if
 
         dx = (x1 - x0)/N
         Integral = y(x0) + y(x1)
@@ -430,17 +441,28 @@ contains
     !> @param x1 Upper integration limit.
     !> @param N Number of sub-intervals (must be even).
     !> @param y Complex function f(z).
-    !> @return Numerical integral of f from x0 to x1.
+    !> @param[out] ierr Optional error code (pk_success or pk_err_invalid_argument).
+    !> @return Numerical integral of f from x0 to x1 (0.0 on error).
     !=================================================
-    function pk_composite_simpson_complex(x0, x1, N, y) result(Integral)
+    function pk_composite_simpson_complex(x0, x1, N, y, ierr) result(Integral)
         complex(dp), intent(in) :: x0, x1
         complex(dp) :: dx, Integral
         integer, intent(in) :: N
+        integer, intent(out), optional :: ierr
         integer :: i
         procedure(f_complex) :: y
-        
-        if (N <= 0) stop "Error: N must be positive"
-        if (mod(N, 2) /= 0) stop "Error: N must be even for Simpson's rule"
+
+        if (present(ierr)) ierr = pk_success
+
+        if (N <= 0 .or. mod(N, 2) /= 0) then
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                Integral = (0.0_dp, 0.0_dp)
+                return
+            else
+                error stop "physkit_numerical: pk_composite_simpson: N must be a positive even integer"
+            end if
+        end if
 
         dx = (x1 - x0)/N
         Integral = y(x0) + y(x1)
@@ -467,7 +489,7 @@ contains
     !> @param y Real function f(x).
     !> @return Numerical integral result.
     !=================================================
-    recursive function pk_adaptative_simpson_real(x0, x1, tol, i, imax, y) result(Integral)
+    recursive function pk_adaptive_simpson_real(x0, x1, tol, i, imax, y) result(Integral)
         real(dp), intent(in) :: x0, x1, tol
         real(dp) :: Integral, m, S, S1, S2
         integer, intent(in) :: i, imax
@@ -482,7 +504,7 @@ contains
         if (abs(S1 + S2 - S) < 15.0_dp*tol .or. i >= imax) then
             Integral = S1 + S2 + ((S1 + S2 - S)/15.0_dp)
         else
-            Integral = pk_adaptative_simpson(x0, m, tol/2, i+1, imax, y) + pk_adaptative_simpson(m, x1, tol/2, i+1, imax, y)
+            Integral = pk_adaptive_simpson(x0, m, tol/2, i+1, imax, y) + pk_adaptive_simpson(m, x1, tol/2, i+1, imax, y)
         end if
 
     contains
@@ -496,7 +518,7 @@ contains
 
         end function pk_simpson
 
-    end function pk_adaptative_simpson_real
+    end function pk_adaptive_simpson_real
 
 
     !=================================================
@@ -509,7 +531,7 @@ contains
     !> @param y Complex function f(z).
     !> @return Numerical integral result.
     !=================================================
-    recursive function pk_adaptative_simpson_complex(x0, x1, tol, i, imax, y) result(Integral)
+    recursive function pk_adaptive_simpson_complex(x0, x1, tol, i, imax, y) result(Integral)
         complex(dp), intent(in) :: x0, x1
         real(dp), intent(in) :: tol
         integer, intent(in) :: i, imax
@@ -525,8 +547,8 @@ contains
         if (abs(S1 + S2 - S) < 15.0_dp*tol .or. i >= imax) then
             Integral = S1 + S2 + (S1 + S2 - S)/15.0_dp
         else
-            Integral = pk_adaptative_simpson_complex(x0, m, tol/2.0_dp, i+1, imax, y) + &
-                    pk_adaptative_simpson_complex(m, x1, tol/2.0_dp, i+1, imax, y)
+            Integral = pk_adaptive_simpson_complex(x0, m, tol/2.0_dp, i+1, imax, y) + &
+                    pk_adaptive_simpson_complex(m, x1, tol/2.0_dp, i+1, imax, y)
         end if
     
     contains
@@ -540,7 +562,7 @@ contains
 
         end function pk_simpson_complex
 
-    end function pk_adaptative_simpson_complex
+    end function pk_adaptive_simpson_complex
 
 
     !###################################################
@@ -554,20 +576,28 @@ contains
     !> @param tol Convergence tolerance.
     !> @param imax Maximum number of iterations.
     !> @param y Real function f(x).
-    !> @return Estimated root.
+    !> @param[out] ierr Optional error code (pk_success, pk_err_invalid_argument or pk_err_no_convergence).
+    !> @return Estimated root (0.0 if the initial bracket is invalid).
     !=================================================
-    function pk_bisection_method(a, b, tol, imax, y) result(root)
+    function pk_bisection_method(a, b, tol, imax, y, ierr) result(root)
         real(dp), intent(in) :: a, b, tol
         real(dp) :: a_local, b_local
         integer, intent(in) :: imax
+        integer, intent(out), optional :: ierr
         real(dp) :: root
         integer :: i
         procedure(f) :: y
 
+        if (present(ierr)) ierr = pk_success
+
         if (y(a)*y(b) >= 0.0_dp) then
-            print *, "Error: y(a) and y(b) must have opposite signs"
-            root = 0.0_dp
-            return
+            if (present(ierr)) then
+                ierr = pk_err_invalid_argument
+                root = 0.0_dp
+                return
+            else
+                error stop "physkit_numerical: pk_bisection_method: y(a) and y(b) must have opposite signs"
+            end if
         end if
 
         a_local = a
@@ -585,7 +615,11 @@ contains
             root = (a_local + b_local)/2.0_dp
         end do
 
-        print *, "Warning: maximum number of iterations reached, result may not be accurate"
+        if (present(ierr)) then
+            ierr = pk_err_no_convergence
+        else
+            print *, "Warning: maximum number of iterations reached, result may not be accurate"
+        end if
     end function pk_bisection_method
 
     !=================================================
@@ -595,14 +629,18 @@ contains
     !> @param tol Convergence tolerance.
     !> @param imax Maximum number of iterations.
     !> @param y Real function f(x).
+    !> @param[out] ierr Optional error code (pk_success, pk_err_singular or pk_err_no_convergence).
     !> @return Estimated root.
     !=================================================
-    function pk_newton_raphson(x0, tol, imax, y) result(root)
+    function pk_newton_raphson(x0, tol, imax, y, ierr) result(root)
         real(dp), intent(in) :: x0, tol
         real(dp) :: root, x, fx, dfx
         integer, intent(in) :: imax
+        integer, intent(out), optional :: ierr
         integer :: i
         procedure(f) :: y
+
+        if (present(ierr)) ierr = pk_success
 
         x = x0
 
@@ -613,15 +651,23 @@ contains
                 root = x
                 return
             else if (dfx == 0.0_dp) then
-                print *, "Error: derivative is zero"
                 root = x
+                if (present(ierr)) then
+                    ierr = pk_err_singular
+                else
+                    error stop "physkit_numerical: pk_newton_raphson: derivative is zero"
+                end if
                 return
             end if
             x = x - fx/dfx
         end do
 
         root = x
-        print *, "Warning: maximum number of iterations reached, result may not be accurate"
+        if (present(ierr)) then
+            ierr = pk_err_no_convergence
+        else
+            print *, "Warning: maximum number of iterations reached, result may not be accurate"
+        end if
     end function pk_newton_raphson
 
     !=================================================
@@ -632,15 +678,19 @@ contains
     !> @param tol Convergence tolerance.
     !> @param imax Maximum number of iterations.
     !> @param y Real function f(x).
+    !> @param[out] ierr Optional error code (pk_success, pk_err_singular or pk_err_no_convergence).
     !> @return Estimated root.
     !=================================================
-    function pk_secant_method(x0, x1, tol, imax, y) result(root)
+    function pk_secant_method(x0, x1, tol, imax, y, ierr) result(root)
     real(dp), intent(in) :: x0, x1, tol
     real(dp) :: root, x_new, x0_local, x1_local, fx0, fx1
     integer, intent(in) :: imax
+    integer, intent(out), optional :: ierr
     integer :: i
     procedure(f) :: y
-        
+
+        if (present(ierr)) ierr = pk_success
+
         fx0 = y(x0)
         fx1 = y(x1)
         x0_local = x0
@@ -648,12 +698,16 @@ contains
 
         do i = 1, imax
             if (abs(fx1 - fx0) < 1.0e-14_dp) then
-                print*, "Error: division by zero in secant method"
                 root = x1_local
+                if (present(ierr)) then
+                    ierr = pk_err_singular
+                else
+                    error stop "physkit_numerical: pk_secant_method: division by zero (fx1 - fx0 too small)"
+                end if
                 return
             end if
             x_new = x1_local - ((x1_local - x0_local)/(fx1 - fx0)) * fx1
-        
+
             if (abs(x_new - x1_local) < tol) then
                 root = x_new
                 return
@@ -666,7 +720,11 @@ contains
         end do
 
         root = x1_local
-        print*, "Warning: maximum number of iterations reached, result may not be accurate"
+        if (present(ierr)) then
+            ierr = pk_err_no_convergence
+        else
+            print*, "Warning: maximum number of iterations reached, result may not be accurate"
+        end if
     end function pk_secant_method
 
 end module physkit_numerical

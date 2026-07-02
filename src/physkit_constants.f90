@@ -51,4 +51,20 @@ module physkit_constants
     real(dp), parameter :: standard_gravity = 9.80665_dp            !< Standard acceleration of gravity [m/s^2].
     !> @}
 
+    !=================================================
+    !> @name Error Codes
+    !> @{
+    !=================================================
+    !> @details Standard error codes used across Physkit's optional `ierr`
+    !>          output arguments. When a procedure receives `ierr` from the
+    !>          caller, it reports errors through this code instead of
+    !>          stopping the program; when `ierr` is omitted, the procedure
+    !>          falls back to `error stop` with a descriptive message.
+    integer, parameter :: pk_success = 0                   !< No error.
+    integer, parameter :: pk_err_dimension_mismatch = 1    !< Incompatible vector/matrix dimensions.
+    integer, parameter :: pk_err_invalid_argument = 2      !< Argument value out of the valid domain.
+    integer, parameter :: pk_err_singular = 3              !< Degenerate operation (e.g. division by zero, zero vector).
+    integer, parameter :: pk_err_no_convergence = 4        !< Iterative method did not converge within the iteration limit.
+    !> @}
+
 end module physkit_constants

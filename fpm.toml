@@ -1,0 +1,16 @@
+name = "physkit-fortran"
+version = "0.1.0"
+license = "MIT"
+author = "jperez-physics"
+maintainer = "jperez-physics"
+copyright = "Copyright 2026, jperez-physics"
+description = "A modular computational physics toolkit written in modern Fortran."
+
+[build]
+auto-executables = true
+auto-tests = true
+auto-examples = true
+module-naming = false
+
+[install]
+library = true
